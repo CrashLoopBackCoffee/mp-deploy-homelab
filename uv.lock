@@ -327,7 +327,6 @@ source = { virtual = "." }
 dependencies = [
     { name = "proxmox" },
     { name = "samba" },
-    { name = "utils" },
 ]
 
 [package.dev-dependencies]
@@ -341,7 +340,6 @@ dev = [
 requires-dist = [
     { name = "proxmox", virtual = "packages/proxmox" },
     { name = "samba", virtual = "packages/samba" },
-    { name = "utils", editable = "packages/utils" },
 ]
 
 [package.metadata.requires-dev]
