@@ -1,0 +1,77 @@
+- name: Export PVE metrics to Prometheus
+  hosts: pve
+  gather_facts: true
+
+  vars:
+    pve_exporter_yml: /etc/prometheus/pve-exporter.yml
+    pve_exporter_venv: /opt/prometheus-pve-exporter
+    # renovate: datasource=github-releases packageName=prometheus-pve/prometheus-pve-exporter versioning=semver
+    pve_exporter_version: 3.5.0
+
+  tasks:
+    - name: Query user accounts
+      ansible.builtin.command:
+        pveum user list --output-format=json
+      register: query_users_result
+      changed_when: false
+      check_mode: false
+
+    - name: Look for pve-exporter account
+      ansible.builtin.set_fact:
+        pve_exporter_users: >-
+          {{ query_users_result.stdout
+          | from_json
+          | selectattr('userid', 'equalto', prometheus.pve_exporter.username ~ '@pve')
+          | list }}
+
+    - name: Create pve-exporter account
+      ansible.builtin.shell:
+        pveum user add {{ prometheus.pve_exporter.username }}@pve
+          --password={{ prometheus.pve_exporter.password }}
+          --comment "Prometheus exporter service account." &&
+        pveum acl modify / --users {{ prometheus.pve_exporter.username }}@pve --roles PVEAuditor &&
+        useradd -s /bin/false {{ prometheus.pve_exporter.username }}
+      changed_when: true
+      when: pve_exporter_users | length == 0
+
+    - name: Install virtualenv package
+      ansible.builtin.apt:
+        name: python3-virtualenv
+        state: present
+
+    - name: Install pve-exporter in {{ pve_exporter_venv }}
+      ansible.builtin.pip:
+        name: prometheus-pve-exporter=={{ pve_exporter_version }}
+        virtualenv: "{{ pve_exporter_venv }}"
+      notify: Start pve-exporter service
+
+    - name: Ensure pve-exporter config dir
+      ansible.builtin.file:
+        path: "{{ pve_exporter_yml | dirname }}"
+        state: directory
+        owner: root
+        group: "{{ prometheus.pve_exporter.username }}"
+        mode: '0750'
+
+    - name: Generate pve-exporter config file
+      ansible.builtin.template:
+        src: prometheus-pve-exporter.yml.j2
+        dest: "{{ pve_exporter_yml }}"
+        owner: root
+        group: "{{ prometheus.pve_exporter.username }}"
+        mode: '0640'
+
+    - name: Generate pve-exporter service file
+      ansible.builtin.template:
+        src: prometheus-pve-exporter.service.j2
+        dest: /etc/systemd/system/prometheus-pve-exporter.service
+        mode: '0644'
+      notify: Start pve-exporter service
+
+  handlers:
+    - name: Start pve-exporter service
+      ansible.builtin.systemd_service:
+        name: prometheus-pve-exporter
+        state: restarted
+        enabled: true
+        daemon_reload: true

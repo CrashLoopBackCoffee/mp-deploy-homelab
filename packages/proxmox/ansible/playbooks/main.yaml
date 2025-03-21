@@ -1,0 +1,12 @@
+- import_playbook: proxmox-post-install.yaml  # noqa: name[play]
+- import_playbook: proxmox-api-token.yaml  # noqa: name[play]
+- import_playbook: proxmox-grub-usb.yaml  # noqa: name[play]
+- import_playbook: proxmox-notifications.yaml  # noqa: name[play]
+- import_playbook: proxmox-acme.yaml  # noqa: name[play]
+- import_playbook: proxmox-backup.yaml  # noqa: name[play]
+- import_playbook: proxmox-host-backup.yaml  # noqa: name[play]
+- import_playbook: proxmox-local-snippets.yaml  # noqa: name[play]
+- import_playbook: proxmox-node-exporter.yaml  # noqa: name[play]
+- import_playbook: proxmox-pve-exporter.yaml  # noqa: name[play]
+# keep this last to minimize effect of contained check_mode failure:
+- import_playbook: proxmox-prometheus.yaml  # noqa: name[play]

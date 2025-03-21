@@ -1,0 +1,15 @@
+- name: Check existence of {{ pve_template_dest }}
+  ansible.builtin.stat:
+    path: '{{ pve_template_dest }}'
+  register: pve_template_stat_result
+
+- name: Create {{ pve_template_dest }}  # noqa: risky-file-permissions  # CFS dictates perms
+  ansible.builtin.file:
+    path: '{{ pve_template_dest }}'
+    state: touch
+  when: not pve_template_stat_result.stat.exists
+
+- name: Evaluate template  # noqa: risky-file-permissions
+  ansible.builtin.template:
+    src: '{{ pve_template_src }}'
+    dest: '{{ pve_template_dest }}'

@@ -1,0 +1,18 @@
+{% for backup in backups %}
+vzdump: {{ backup.name }}
+        schedule {{ backup.schedule }}
+{% if 'compress' in backup %}
+        compress {{ backup.compress }}
+{% endif %}
+        enabled {{ backup.enabled | default(1) }}
+        fleecing 0
+        mode snapshot
+        notes-template {{ "{{guestname}}" }}
+        notification-mode notification-system
+{% if 'prune' in backup %}
+        prune-backups {{ backup.prune }}
+{% endif %}
+        storage {{ backup.storage }}
+        vmid {{ backup.vmid }}
+
+{% endfor %}

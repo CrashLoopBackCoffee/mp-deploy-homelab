@@ -1,0 +1,66 @@
+- name: Configure Prometheus metrics scraping
+  hosts: pve
+  gather_facts: true
+
+  vars:
+    prometheus_yml_ct: /etc/prometheus/prometheus.yml
+    prometheus_yml_tmp: /root/prometheus.yml
+
+  tasks:
+    - name: Exit playbook if this is not the node hosting Prometheus
+      ansible.builtin.meta: end_play
+      when: inventory_hostname != prometheus.node
+
+    - name: Query LXC containers
+      ansible.builtin.command:
+        pvesh get /nodes/{{ ansible_hostname }}/lxc --output-format=json
+      register: get_lxc_result
+      changed_when: false
+      check_mode: false
+
+    - name: Look for Prometheus containers
+      ansible.builtin.set_fact:
+        prometheus_containers: >-
+          {{ get_lxc_result.stdout
+          | from_json
+          | selectattr('name', 'equalto', 'prometheus')
+          | list }}
+
+    - name: Ensure Prometheus container exists
+      ansible.builtin.assert:
+        that: prometheus_containers | length == 1
+        fail_msg:
+          There must be exactly one LXC container named 'prometheus'. Create it by running the
+          utility script at https://community-scripts.github.io/ProxmoxVE/scripts?id=prometheus.
+
+    - name: Extract Prometheus container ID
+      ansible.builtin.set_fact:
+        prometheus_container_id: "{{ prometheus_containers[0].vmid }}"
+
+    - name: Download Prometheus config from container to pve node
+      ansible.builtin.shell:
+        pct pull {{ prometheus_container_id }} {{ prometheus_yml_ct }} {{ prometheus_yml_tmp }} &&
+        chmod 0600 {{ prometheus_yml_tmp }}
+      changed_when: false
+      check_mode: false
+
+    - name: Generate Prometheus config for container
+      ansible.builtin.template:
+        src: prometheus-ct.yml.j2
+        dest: "{{ prometheus_yml_tmp }}"
+        mode: '0600'
+      notify: Reconfigure Prometheus in container
+
+  post_tasks:
+    - name: Delete local copy of Prometheus config
+      ansible.builtin.file:
+        dest: "{{ prometheus_yml_tmp }}"
+        state: absent
+      changed_when: false
+
+  handlers:
+    - name: Reconfigure Prometheus in container
+      ansible.builtin.shell:
+        pct push {{ prometheus_container_id }} {{ prometheus_yml_tmp }} {{ prometheus_yml_ct }} &&
+        pct exec {{ prometheus_container_id }} systemctl restart prometheus
+      changed_when: true

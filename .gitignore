@@ -1,3 +1,4 @@
+*.log
 *.pyc
-venv/
 .ruff_cache/
+venv/

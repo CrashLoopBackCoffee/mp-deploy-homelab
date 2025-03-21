@@ -1,0 +1,7 @@
+host_backup:
+  repository: "{{ inventory_hostname_short }}@pbs@pbs.mpagel.de:pbs-backup-usb"
+  namespace: "{{ inventory_hostname_short }}"
+  password: "{{ lookup('env', 'PBS_PASSWORD_' ~ inventory_hostname_short_caps, default=Undefined) }}"
+  archives:
+    - "pve-root.img:/dev/pve/root"
+    - "etc-pve.pxar:/etc/pve"

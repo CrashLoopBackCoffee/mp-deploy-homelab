@@ -1,0 +1,14 @@
+acme:
+  account:
+    contact: proxmox@mpagel.de
+    # for now leave the old name to prevent artificial diff:
+    name: pulumi
+  plugin:
+    api: cf
+    data:
+      - key: CF_Account_ID
+        value: "{{ lookup('env', 'CLOUDFLARE_ACCOUNT_ID', default=Undefined) }}"
+      - key: CF_Token
+        value: "{{ lookup('env', 'CLOUDFLARE_TOKEN', default=Undefined) }}"
+    name: cloudflare
+  staging: false

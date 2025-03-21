@@ -1,0 +1,3 @@
+api_tokens:
+  - name: pulumi
+    userid: root@pam

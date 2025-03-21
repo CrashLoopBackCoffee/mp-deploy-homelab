@@ -1,0 +1,4 @@
+cluster_config_path: /etc/proxmox-backup
+
+notifications_cfg: '{{ cluster_config_path }}/notifications.cfg'
+notifications_priv_cfg: '{{ cluster_config_path }}/notifications-priv.cfg'

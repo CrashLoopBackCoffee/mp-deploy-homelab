@@ -1,0 +1,29 @@
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: pve-exporter
+    static_configs:
+      - targets:
+          - "{{ inventory_hostname }}:9221"
+        labels: {{ prometheus.labels }}
+    metrics_path: /pve
+    params:
+      module: [default]
+
+  - job_name: node
+    static_configs:
+      - targets: {{ groups.all | map('regex_replace', '^(.*)$', '\\1:9100') }}
+        labels: {{ prometheus.labels }}
+
+remote_write:
+  - url: "{{ prometheus.remote.push_url }}"
+    basic_auth:
+      username: "{{ prometheus.remote.username }}"
+      password: "{{ prometheus.remote.password }}"
