@@ -1,0 +1,2 @@
+ansible_become: false
+inventory_hostname_short_caps: "{{ inventory_hostname_short | upper | replace('-', '_') }}"

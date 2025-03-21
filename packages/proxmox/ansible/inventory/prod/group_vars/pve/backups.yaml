@@ -1,0 +1,11 @@
+backups:
+  - name: backup-usb
+    prune: keep-daily=7,keep-weekly=4
+    schedule: "3:00"
+    compress: zstd
+    storage: backup-usb
+    vmid: 110
+  - name: pbs
+    schedule: "*/2:00"
+    storage: pbs
+    vmid: 100,110

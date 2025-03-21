@@ -1,0 +1,7 @@
+pbs:
+  hosts:
+    pbs-dev.mpagel.de: ~
+
+pve:
+  hosts:
+    pve-dev.mpagel.de: ~

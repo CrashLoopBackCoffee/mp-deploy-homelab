@@ -1,0 +1,4 @@
+cluster_config_path: /etc/pve
+
+notifications_cfg: '{{ cluster_config_path }}/notifications.cfg'
+notifications_priv_cfg: '{{ cluster_config_path }}/priv/notifications.cfg'

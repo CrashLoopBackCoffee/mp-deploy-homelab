@@ -1,0 +1,6 @@
+smtp_account:
+  name: strato-mpagel
+  from: proxmox@mpagel.de
+  server: smtp.strato.de
+  user: proxmox@mpagel.de
+  password: "{{ lookup('env', 'STRATO_PROXMOX_MPAGEL_DE_PASSWORD', default=Undefined) }}"

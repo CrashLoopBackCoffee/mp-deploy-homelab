@@ -1,0 +1,9 @@
+[project]
+name = "proxmox"
+version = "0.1.0"
+description = "Deployment of a Proxmox cluster with Ansible."
+requires-python = ">=3.12"
+dependencies = ["ansible>=11.1.0"]
+
+[tool.uv]
+environments = ["platform_system != 'Windows'"]

@@ -1,0 +1,5 @@
+backups:
+  - name: pbs
+    schedule: '*/8:00'
+    storage: pbs
+    vmid: 100

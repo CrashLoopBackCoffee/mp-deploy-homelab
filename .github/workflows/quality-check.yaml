@@ -27,3 +27,14 @@ jobs:
 
       - name: ruff format
         run: uv run ruff format --check
+
+      - name: Install Ansible dependencies
+        run:
+          uv run ansible-galaxy collection install
+            -r packages/proxmox/ansible/ansible-requirements.yaml
+
+      - name: Run Ansible Lint
+        run: uv run ansible-lint -v
+          packages/proxmox/ansible/inventory
+          packages/proxmox/ansible/playbooks
+          packages/proxmox/ansible/roles

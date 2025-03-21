@@ -1,0 +1,21 @@
+- name: Create API tokens for Proxmox Backup Server
+  hosts: pbs
+  gather_facts: false
+  tasks:
+    - name: Create PBS API token
+      ansible.builtin.include_tasks:
+        file: tasks/proxmox-api-token-pbs.yaml
+      loop: "{{ api_tokens }}"
+      loop_control:
+        loop_var: api_token
+
+- name: Create API tokens for Proxmox VE
+  hosts: pve
+  gather_facts: false
+  tasks:
+    - name: Create PVE API token
+      ansible.builtin.include_tasks:
+        file: tasks/proxmox-api-token-pve.yaml
+      loop: "{{ api_tokens }}"
+      loop_control:
+        loop_var: api_token

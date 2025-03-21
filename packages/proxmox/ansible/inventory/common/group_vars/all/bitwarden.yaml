@@ -1,0 +1,4 @@
+bws:
+  output:
+    project_id: 2811ce4d-da08-4937-88dd-b25800f4afe2
+    token_name_prefix: PROXMOX_API_TOKEN
