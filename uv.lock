@@ -117,7 +117,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "utils", editable = "utils" }]
+requires-dist = [{ name = "utils", editable = "packages/utils" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -400,7 +400,7 @@ wheels = [
 [[package]]
 name = "utils"
 version = "0.0.1"
-source = { editable = "utils" }
+source = { editable = "packages/utils" }
 dependencies = [
     { name = "httpx" },
     { name = "pulumi" },
