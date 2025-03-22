@@ -34,7 +34,4 @@ jobs:
             -r services/proxmox/ansible/ansible-requirements.yaml
 
       - name: Run Ansible Lint
-        run: uv run ansible-lint -v
-          services/proxmox/ansible/inventory
-          services/proxmox/ansible/playbooks
-          services/proxmox/ansible/roles
+        run: uv run --directory services/proxmox/ansible ansible-lint -v inventory playbooks roles
