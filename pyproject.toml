@@ -2,7 +2,7 @@
 name = "homelab"
 version = "0.1.0"
 requires-python = ">=3.13"
-dependencies = ["proxmox", "samba"]
+dependencies = ["kubernetes", "proxmox", "samba"]
 
 [dependency-groups]
 dev = [
@@ -12,6 +12,7 @@ dev = [
 ]
 
 [tool.uv.sources]
+kubernetes = { workspace = true }
 proxmox = { workspace = true }
 samba = { workspace = true }
 utils = { workspace = true }
@@ -60,7 +61,7 @@ quote-style = "single"
 
 [tool.pyright]
 useLibraryCodeForTypes = true
-include = ["packages/**/*.py"]
+include = ["services/**/*.py"]
 exclude = ["**/node_modules", "**/__pycache__"]
 deprecateTypingAliases = true
 reportAssertAlwaysTrue = true
