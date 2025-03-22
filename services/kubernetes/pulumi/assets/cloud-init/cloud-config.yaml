@@ -1,0 +1,54 @@
+#cloud-config
+users:
+  - default
+  - name: "{{ username }}"
+    groups:
+      - sudo
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - "{{ ssh_public_key }}"
+    lock_passwd: true
+    sudo: ALL=(ALL) NOPASSWD:ALL
+device_aliases:
+  data: /dev/vdb
+disk_setup:
+  data:
+    table_type: gpt
+    layout: true
+    overwrite: false
+fs_setup:
+  - label: data
+    filesystem: ext4
+    device: data
+mounts:
+  - [data, {{ data_disk_mount }}]
+runcmd:
+  # system update and prep:
+  - hostnamectl set-hostname {{ name }}
+  - apt-get update -y
+  - apt-get upgrade -y
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y
+    apt-transport-https
+    ca-certificates
+    curl
+    gpg
+    net-tools
+    vim
+
+  # ensure UTF-8 iocharset is available, e.g. for SMB mounts:
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y linux-modules-extra-$(uname -r)
+
+  # microk8s installation:
+  - snap install microk8s --classic
+  - usermod -a -G microk8s {{ username }}
+  - microk8s status --wait-ready
+  - mkdir -p /home/{{ username }}/.kube
+  - chown -R {{ username }} /home/{{ username }}/.kube
+  - microk8s config > /home/{{ username }}/.kube/config
+  - microk8s enable hostpath-storage
+
+  # start guest agent last to keep Pulumi waiting until all of the above is ready:
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y qemu-guest-agent
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
+  - echo "done" > /tmp/cloud-config.done
