@@ -48,11 +48,14 @@ def ensure_traefik(
         opts=p.ResourceOptions.merge(k8s_opts, p.ResourceOptions(depends_on=[metallb])),
     )
 
-    service = k8s.core.v1.Service.get(
-        'traefik',
-        p.Output.concat(traefik.status.namespace, '/', traefik.status.name),
-        opts=k8s_opts,
+    service = traefik.status.apply(
+        lambda s: k8s.core.v1.Service.get(
+            'traefik',
+            f'{s.namespace}/{s.name}',
+            opts=k8s_opts,
+        )
     )
+
     ipv4 = service.status.load_balancer.ingress[0].ip
     p.export('app-ipv4', ipv4)
 
