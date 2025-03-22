@@ -6,6 +6,7 @@ requires-python = ">=3.13"
 members = [
     "homelab",
     "kubernetes",
+    "paperless",
     "proxmox",
     "samba",
     "utils",
@@ -349,6 +350,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "kubernetes" },
+    { name = "paperless" },
     { name = "proxmox" },
     { name = "samba" },
 ]
@@ -363,6 +365,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "kubernetes", virtual = "services/kubernetes" },
+    { name = "paperless", virtual = "services/paperless" },
     { name = "proxmox", virtual = "services/proxmox" },
     { name = "samba", virtual = "services/samba" },
 ]
@@ -552,6 +555,25 @@ wheels = [
 ]
 
 [[package]]
+name = "paperless"
+version = "0.1.0"
+source = { virtual = "services/paperless" }
+dependencies = [
+    { name = "pulumi" },
+    { name = "pulumi-kubernetes" },
+    { name = "pulumi-random" },
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pulumi", specifier = ">=3.147.0" },
+    { name = "pulumi-kubernetes", specifier = ">=4.21.0" },
+    { name = "pulumi-random", specifier = ">=4.18.0" },
+    { name = "pydantic", specifier = ">=2.10.1" },
+]
+
+[[package]]
 name = "parver"
 version = "0.5"
 source = { registry = "https://pypi.org/simple" }
@@ -683,6 +705,20 @@ dependencies = [
     { name = "semver" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/bf/50/840c70586e01ff6f32bc7c7e6a4365f345e9ab98c7cd0a21008d6f0ca256/pulumi_proxmoxve-6.18.1.tar.gz", hash = "sha256:c242cb0a845598c93793d724f660309af4ac40de33e61fa36db5855a648f2d7c", size = 164999 }
+
+[[package]]
+name = "pulumi-random"
+version = "4.18.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "parver" },
+    { name = "pulumi" },
+    { name = "semver" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4d/46/0bb5f261e86c0e56c9a568c213addbe983a2107f3167a5eb5546f2d60a9e/pulumi_random-4.18.0.tar.gz", hash = "sha256:84862ecfff13ca97de87dc2b7dc14f79650e033a461c61a4ccdc76af4ed891f5", size = 21250 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/df/14/4b4156761d9c168e48cc1f2d9192ce3dd01f290f9183ceaebe335bb452a0/pulumi_random-4.18.0-py3-none-any.whl", hash = "sha256:420508895f20a4f7c54ea04c91ebb083a7726a2a6d9b697a485d869ab8c46044", size = 30895 },
+]
 
 [[package]]
 name = "pycparser"
