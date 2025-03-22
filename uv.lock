@@ -338,8 +338,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "proxmox", virtual = "packages/proxmox" },
-    { name = "samba", virtual = "packages/samba" },
+    { name = "proxmox", virtual = "services/proxmox" },
+    { name = "samba", virtual = "services/samba" },
 ]
 
 [package.metadata.requires-dev]
@@ -567,7 +567,7 @@ wheels = [
 [[package]]
 name = "proxmox"
 version = "0.1.0"
-source = { virtual = "packages/proxmox" }
+source = { virtual = "services/proxmox" }
 dependencies = [
     { name = "ansible" },
 ]
@@ -808,7 +808,7 @@ wheels = [
 [[package]]
 name = "samba"
 version = "0.1.0"
-source = { virtual = "packages/samba" }
+source = { virtual = "services/samba" }
 dependencies = [
     { name = "jinja2" },
     { name = "pulumi" },
@@ -823,7 +823,7 @@ requires-dist = [
     { name = "pulumi", specifier = ">=3.147.0" },
     { name = "pulumi-proxmoxve", specifier = ">=6.18.1" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.10.1" },
-    { name = "utils", editable = "packages/utils" },
+    { name = "utils", editable = "services/utils" },
 ]
 
 [[package]]
@@ -874,7 +874,7 @@ wheels = [
 [[package]]
 name = "utils"
 version = "0.0.1"
-source = { editable = "packages/utils" }
+source = { editable = "services/utils" }
 dependencies = [
     { name = "httpx" },
     { name = "pulumi" },

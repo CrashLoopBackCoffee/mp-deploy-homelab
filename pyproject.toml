@@ -20,7 +20,7 @@ utils = { workspace = true }
 package = false
 
 [tool.uv.workspace]
-members = ["packages/*"]
+members = ["services/*"]
 
 [build-system]
 requires = ["hatchling"]

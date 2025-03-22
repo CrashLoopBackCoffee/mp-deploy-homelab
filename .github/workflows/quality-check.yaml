@@ -31,10 +31,10 @@ jobs:
       - name: Install Ansible dependencies
         run:
           uv run ansible-galaxy collection install
-            -r packages/proxmox/ansible/ansible-requirements.yaml
+            -r services/proxmox/ansible/ansible-requirements.yaml
 
       - name: Run Ansible Lint
         run: uv run ansible-lint -v
-          packages/proxmox/ansible/inventory
-          packages/proxmox/ansible/playbooks
-          packages/proxmox/ansible/roles
+          services/proxmox/ansible/inventory
+          services/proxmox/ansible/playbooks
+          services/proxmox/ansible/roles
