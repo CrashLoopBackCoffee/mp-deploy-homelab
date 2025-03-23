@@ -144,6 +144,10 @@ def deploy(
                                     'name': 'consume',
                                     'mount_path': '/usr/src/paperless/consume',
                                 },
+                                {
+                                    'name': 'export',
+                                    'mount_path': '/usr/src/paperless/export',
+                                },
                             ],
                             'ports': [
                                 {
@@ -212,6 +216,20 @@ def deploy(
                         'resources': {
                             'requests': {
                                 'storage': f'{component_config.paperless.consume_size_mb}Mi'
+                            }
+                        },
+                    },
+                },
+                {
+                    'metadata': {
+                        'name': 'export',
+                    },
+                    'spec': {
+                        'storage_class_name': 'samba-write-k8s',
+                        'access_modes': ['ReadWriteOnce'],
+                        'resources': {
+                            'requests': {
+                                'storage': f'{component_config.paperless.export_size_gb}Gi'
                             }
                         },
                     },

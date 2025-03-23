@@ -26,9 +26,9 @@ config:
         password:
           secure: AAABAIx5nm7039PZJxjcv4JJPHmTzCb989LlLHYOwgep/UrFGEmRJ3qXVCypQMJ8cU1yGczX6fyZFp+G9m8zaaU3sWE=
       shares:
-        - name: paperless-consume
+        - name: write-all
           remote_write: true
           k8s_write: true
-        - name: paperless-media
+        - name: write-k8s
           remote_write: false
           k8s_write: true
