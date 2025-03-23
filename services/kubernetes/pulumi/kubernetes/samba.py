@@ -20,7 +20,7 @@ def ensure_smb(component_config: ComponentConfig, k8s_provider: k8s.Provider):
     )
     k8s_opts = p.ResourceOptions(provider=namespaced_k8s_provider)
 
-    k8s.helm.v3.Release(
+    csi_driver_smb = k8s.helm.v3.Release(
         'csi-driver-smb',
         chart='csi-driver-smb',
         version=component_config.csi_driver_smb.version,
@@ -43,7 +43,7 @@ def ensure_smb(component_config: ComponentConfig, k8s_provider: k8s.Provider):
             'username': samba_stack.get_output('smb-k8s-username'),
             'password': samba_stack.get_output('smb-k8s-password'),
         },
-        opts=k8s_opts,
+        opts=k8s_opts.merge(p.ResourceOptions(depends_on=[csi_driver_smb])),
     )
 
     def create_storage_classes(shares):
