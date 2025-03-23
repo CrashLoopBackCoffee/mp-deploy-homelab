@@ -111,7 +111,7 @@ def deploy(
     config: k8s.core.v1.ConfigMap,
     config_secret: k8s.core.v1.Secret,
     k8s_opts: p.ResourceOptions,
-):
+) -> k8s.apps.v1.StatefulSet:
     # we use prod samba storage regardless of what kind of stack this currently is:
     samba_stack = p.StackReference(f'{p.get_organization()}/samba/prod')
     samba_fqdn = samba_stack.get_output('fqdn')
@@ -158,7 +158,7 @@ def deploy(
         k8s_opts=k8s_opts,
     )
 
-    return k8s.apps.v1.StatefulSet(
+    sts = k8s.apps.v1.StatefulSet(
         'paperless',
         metadata={'name': 'paperless'},
         spec={
@@ -266,6 +266,41 @@ def deploy(
         },
         opts=k8s_opts,
     )
+
+    export_command = p.Output.concat(
+        'kubectl exec statefulset/',
+        sts.metadata.name,
+        ' -c webserver -- '
+        'document_exporter ../export --delete --use-filename-format --use-folder-prefix --no-progress-bar',
+    )
+
+    k8s.batch.v1.CronJob(
+        'exporter',
+        metadata={'name': 'exporter'},
+        spec={
+            'schedule': component_config.paperless.exporter_schedule,
+            'successful_jobs_history_limit': 3,
+            'job_template': {
+                'spec': {
+                    'template': {
+                        'spec': {
+                            'containers': [
+                                {
+                                    'name': 'exporter',
+                                    'image': f'bitnami/kubectl:{component_config.paperless.exporter_kubectl_version}',
+                                    'command': ['/bin/sh', '-c', export_command],
+                                }
+                            ],
+                            'restart_policy': 'Never',
+                        }
+                    }
+                },
+            },
+        },
+        opts=k8s_opts,
+    )
+
+    return sts
 
 
 def _create_smb_storage_class(

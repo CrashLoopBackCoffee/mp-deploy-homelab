@@ -30,6 +30,8 @@ class PaperlessConfig(ConfigBaseModel):
     media_smb_share: str = 'paperless-media'
     consume_size_mb: pydantic.PositiveInt
     consume_smb_share: str = 'paperless-consume'
+    exporter_kubectl_version: str
+    exporter_schedule: str = '* 3 * * *'
 
 
 class RedisConfig(ConfigBaseModel):
