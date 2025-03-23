@@ -14,7 +14,7 @@ from utils import unify
 from kubernetes.cert_manager import ensure_cert_manager
 from kubernetes.metallb import ensure_metallb
 from kubernetes.model import ComponentConfig
-from kubernetes.samba import ensure_csi_driver_smb
+from kubernetes.samba import ensure_smb
 from kubernetes.traefik import ensure_traefik
 
 
@@ -255,4 +255,4 @@ def create_microk8s(component_config: ComponentConfig, proxmox_provider: proxmox
             k8s_provider=k8s_provider,
         )
 
-        ensure_csi_driver_smb(component_config, k8s_provider)
+        ensure_smb(component_config, k8s_provider)
