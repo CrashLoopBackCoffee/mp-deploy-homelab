@@ -268,15 +268,18 @@ def deploy(
     )
 
     export_command = p.Output.concat(
-        'kubectl exec statefulset/', sts.metadata.name, ' -c webserver -- python manage.py help'
+        'kubectl exec statefulset/',
+        sts.metadata.name,
+        ' -c webserver -- '
+        'document_exporter ../export --delete --use-filename-format --use-folder-prefix --no-progress-bar',
     )
 
     k8s.batch.v1.CronJob(
         'exporter',
         metadata={'name': 'exporter'},
         spec={
-            'schedule': '* * * * *',
-            'successful_jobs_history_limit': 2,
+            'schedule': component_config.paperless.exporter_schedule,
+            'successful_jobs_history_limit': 3,
             'job_template': {
                 'spec': {
                     'template': {
@@ -284,7 +287,7 @@ def deploy(
                             'containers': [
                                 {
                                     'name': 'exporter',
-                                    'image': 'bitnami/kubectl:latest',
+                                    'image': f'bitnami/kubectl:{component_config.paperless.exporter_kubectl_version}',
                                     'command': ['/bin/sh', '-c', export_command],
                                 }
                             ],
