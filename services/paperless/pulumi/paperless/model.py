@@ -30,7 +30,7 @@ class PaperlessConfig(ConfigBaseModel):
     consume_size_mb: pydantic.PositiveInt
     export_size_gb: pydantic.PositiveInt
     exporter_kubectl_version: str
-    exporter_schedule: str = '* 3 * * *'
+    exporter_schedule: str = '30 3 * * *'
 
 
 class RedisConfig(ConfigBaseModel):
