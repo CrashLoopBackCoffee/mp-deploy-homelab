@@ -7,6 +7,7 @@ config:
       media-size-gb: 16
       consume-size-mb: 512
       export-size-gb: 4
+      exporter-schedule: "45 6-23 * * *"
       # renovate: datasource=docker packageName=bitnami/kubectl versioning=docker
       exporter-kubectl-version: 1.32.3
     redis:
