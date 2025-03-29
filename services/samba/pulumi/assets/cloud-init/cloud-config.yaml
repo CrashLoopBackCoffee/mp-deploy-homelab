@@ -89,7 +89,7 @@ runcmd:
 {% for share in smb.shares %}
   - mkdir -p {{ vm.data_disk_mount }}/{{ share.name }}
   - chown -R {{ smb.k8s.username }}:{{ smb.group }} {{ vm.data_disk_mount }}/{{ share.name }}
-  - chmod -R 2775 {{ vm.data_disk_mount }}/{{ share.name }}
+  - chmod -R 2755 {{ vm.data_disk_mount }}/{{ share.name }}
 {% endfor %}
   - ufw allow samba
   - systemctl restart smbd
