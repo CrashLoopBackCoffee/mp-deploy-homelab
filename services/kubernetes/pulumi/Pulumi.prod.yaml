@@ -25,7 +25,7 @@ config:
       ipv4-end: 10.0.10.99
     cert-manager:
       # renovate: datasource=github-releases packageName=cert-manager/cert-manager versioning=semver
-      version: v1.17.1
+      version: v1.17.2
       acme-email: mike@mpagel.de
     traefik:
       # renovate: datasource=github-releases packageName=traefik/traefik versioning=semver
