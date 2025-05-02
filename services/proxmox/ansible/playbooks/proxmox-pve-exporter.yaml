@@ -6,7 +6,7 @@
     pve_exporter_yml: /etc/prometheus/pve-exporter.yml
     pve_exporter_venv: /opt/prometheus-pve-exporter
     # renovate: datasource=github-releases packageName=prometheus-pve/prometheus-pve-exporter versioning=semver
-    pve_exporter_version: 3.5.2
+    pve_exporter_version: 3.5.4
 
   tasks:
     - name: Query user accounts
