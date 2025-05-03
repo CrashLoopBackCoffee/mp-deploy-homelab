@@ -90,7 +90,7 @@ def create_microk8s(component_config: ComponentConfig, proxmox_provider: proxmox
                 'dedicated': master_config.memory_mb_max,
                 'floating': master_config.memory_mb_min,
             },
-            cdrom={'enabled': False},
+            cdrom={'file_id': None},  # pyright: ignore[reportArgumentType]
             disks=[
                 {
                     'interface': 'virtio0',
