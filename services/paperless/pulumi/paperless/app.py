@@ -45,6 +45,8 @@ def configure(
             'PAPERLESS_CONSUMER_POLLING': '30',
             'PAPERLESS_ACCOUNT_EMAIL_VERIFICATION': 'none',
             'PAPERLESS_CONSUMER_RECURSIVE': 'true',
+            'PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE': 'true',
+            'PAPERLESS_CONSUMER_BARCODE_MAX_PAGES': '1',
         },
         opts=k8s_opts,
     )
