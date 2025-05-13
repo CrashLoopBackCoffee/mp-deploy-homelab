@@ -12,7 +12,7 @@ config:
       exporter-kubectl-version: 1.33.0
     redis:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
-      version: 7.4.3
+      version: 8.0.1
     entraid:
       client-id: 89f2baa9-6e88-4a00-8c06-f6151b0b921b
       client-secret:
