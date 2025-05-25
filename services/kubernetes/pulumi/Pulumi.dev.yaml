@@ -28,7 +28,7 @@ config:
       version: v1.17.2
       acme-email: mike@mpagel.de
     traefik:
-      # renovate: datasource=github-releases packageName=traefik/traefik versioning=semver
+      # renovate: datasource=github-releases packageName=traefik/traefik-helm-chart versioning=semver
       version: "34.3.0"
     cloudflare:
       api-token:
