@@ -79,7 +79,7 @@ def create_server(component_config: ComponentConfig, proxmox_provider: proxmoxve
             'dedicated': component_config.vm.memory_mb_max,
             'floating': component_config.vm.memory_mb_min,
         },
-        cdrom={'enabled': False},
+        cdrom={'file_id': None},  # pyright: ignore[reportArgumentType]
         disks=[
             {
                 'interface': 'virtio0',
