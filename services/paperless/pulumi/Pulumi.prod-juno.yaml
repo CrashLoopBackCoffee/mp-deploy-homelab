@@ -1,0 +1,19 @@
+config:
+  paperless:config:
+    paperless:
+      # renovate: datasource=github-releases packageName=paperless-ngx/paperless-ngx versioning=semver
+      version: 2.16.2
+      data-size-gb: 16
+      media-size-gb: 16
+      consume-size-mb: 512
+      export-size-gb: 4
+      exporter-schedule: "45 6-23 * * *"
+      # renovate: datasource=docker packageName=bitnami/kubectl versioning=docker
+      exporter-kubectl-version: 1.33.1
+    redis:
+      # renovate: datasource=github-releases packageName=redis/redis versioning=semver
+      version: 8.0.1
+    entraid:
+      client-id: bb005af2-2cc0-49a8-9e2e-923e8869e369
+      client-secret:
+        secure: AAABAGy/w4rfhbdSVPpmSTSuqLin6xT0xoxgVYSwHm8PZ/PnRfqwFY8ECemxX2B6pjTxfM4TlnKdX33NOimowO9nTM9vJWzG

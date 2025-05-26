@@ -5,19 +5,24 @@ import pulumi_kubernetes as k8s
 
 from paperless.app import create_paperless
 from paperless.model import ComponentConfig
+from utils.instances import split_stack_name
 
 component_config = ComponentConfig.model_validate(p.Config().require_object('config'))
 
-k8s_stack = p.StackReference(f'{p.get_organization()}/kubernetes/{p.get_stack()}')
+base_stack, instance_suffix = split_stack_name()
+
+k8s_stack = p.StackReference(f'{p.get_organization()}/kubernetes/{base_stack}')
 kube_config = k8s_stack.get_output('kube-config')
 k8s_provider = k8s.Provider('k8s', kubeconfig=kube_config)
 
-fqdn = p.Output.concat(p.get_project(), '.', k8s_stack.get_output('app-sub-domain'))
+fqdn = p.Output.concat(
+    p.get_project(), instance_suffix, '.', k8s_stack.get_output('app-sub-domain')
+)
 p.export('fqdn', fqdn)
 
 ns = k8s.core.v1.Namespace(
     'paperless',
-    metadata={'name': 'paperless'},
+    metadata={'name': f'paperless{instance_suffix}'},
     opts=p.ResourceOptions(
         provider=k8s_provider,
         # protect namespace as the PVCs with the storage data are keeping track of the PVs,
