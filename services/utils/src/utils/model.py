@@ -18,3 +18,7 @@ class EnvVarRef(ConfigBaseModel):
     @property
     def value(self) -> p.Output[str]:
         return p.Output.secret(os.environ[self.envvar])
+
+
+class CloudflareConfig(ConfigBaseModel):
+    api_token: EnvVarRef

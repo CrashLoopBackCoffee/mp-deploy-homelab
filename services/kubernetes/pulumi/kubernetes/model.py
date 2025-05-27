@@ -4,7 +4,7 @@ import ipaddress
 
 import pydantic
 
-from utils.model import ConfigBaseModel, EnvVarRef
+from utils.model import CloudflareConfig, ConfigBaseModel, EnvVarRef
 
 
 class ProxmoxConfig(ConfigBaseModel):
@@ -25,10 +25,6 @@ class TraefikConfig(ConfigBaseModel):
 
 class CsiDriverSmbConfig(ConfigBaseModel):
     version: str
-
-
-class CloudflareConfig(ConfigBaseModel):
-    api_token: EnvVarRef
 
 
 class MetalLbConfig(ConfigBaseModel):

@@ -1,10 +1,6 @@
 """Configuration model."""
 
-from utils.model import ConfigBaseModel, EnvVarRef
-
-
-class CloudflareConfig(ConfigBaseModel):
-    api_token: EnvVarRef
+from utils.model import CloudflareConfig, ConfigBaseModel
 
 
 class ComponentConfig(ConfigBaseModel):
