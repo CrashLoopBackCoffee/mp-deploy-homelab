@@ -1,0 +1,8 @@
+name: ingress
+description: Deployment of cloudflared-based public ingress
+pulumi:disable-default-providers:
+  - kubernetes
+runtime:
+  name: python
+  options:
+    virtualenv: ../../../.venv
