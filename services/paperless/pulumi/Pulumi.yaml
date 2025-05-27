@@ -1,5 +1,5 @@
 name: paperless
-description: Kubernetes-based deployment of paperless-ng
+description: Kubernetes-based deployment of paperless-ngx
 pulumi:disable-default-providers:
   - kubernetes
 runtime:
