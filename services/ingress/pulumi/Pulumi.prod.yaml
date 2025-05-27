@@ -1,0 +1,5 @@
+config:
+  ingress:config:
+    cloudflare:
+      api-token:
+        envvar: CLOUDFLARE_TUNNEL_TOKEN
