@@ -1,4 +1,6 @@
+.ansible/
 *.log
 *.pyc
 .ruff_cache/
 venv/
+.vscode/
