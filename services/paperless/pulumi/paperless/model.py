@@ -14,6 +14,7 @@ class PaperlessConfig(ConfigBaseModel):
     export_size_gb: pydantic.PositiveInt
     exporter_kubectl_version: str
     exporter_schedule: str = '30 3 * * *'
+    external_hostname: str | None = None
 
 
 class RedisConfig(ConfigBaseModel):

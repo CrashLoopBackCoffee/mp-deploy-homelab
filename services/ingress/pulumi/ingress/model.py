@@ -6,7 +6,7 @@ from utils.model import CloudflareConfig, ConfigBaseModel
 class CloudflareTunnelIngressConfig(ConfigBaseModel):
     service: str
     hostname: str
-    origin_server_name: str | None
+    origin_server_name: str | None = None
 
 
 class CloudflareDConfig(ConfigBaseModel):

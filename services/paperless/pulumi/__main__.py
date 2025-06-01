@@ -15,9 +15,13 @@ k8s_stack = p.StackReference(f'{p.get_organization()}/kubernetes/{base_stack}')
 kube_config = k8s_stack.get_output('kube-config')
 k8s_provider = k8s.Provider('k8s', kubeconfig=kube_config)
 
-fqdn = p.Output.concat(
+# paperless can only CSRF validate a single URL, so it's either the external or the interal one:
+external_fqdn = component_config.paperless.external_hostname
+internal_fqdn = p.Output.concat(
     p.get_project(), instance_suffix, '.', k8s_stack.get_output('app-sub-domain')
 )
+tunneled = external_fqdn is not None
+fqdn = external_fqdn or internal_fqdn
 p.export('fqdn', fqdn)
 
 ns = k8s.core.v1.Namespace(
@@ -37,4 +41,4 @@ namespaced_provider = k8s.Provider(
     namespace=ns.metadata.name,
 )
 
-create_paperless(component_config, fqdn, namespaced_provider)
+create_paperless(component_config, fqdn, tunneled, namespaced_provider)

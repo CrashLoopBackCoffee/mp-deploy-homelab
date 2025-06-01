@@ -10,6 +10,7 @@ config:
       exporter-schedule: "45 6-23 * * *"
       # renovate: datasource=docker packageName=bitnami/kubectl versioning=docker
       exporter-kubectl-version: 1.33.1
+      external-hostname: paperless-juno.mpagel.de
     redis:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
       version: 8.0.1
