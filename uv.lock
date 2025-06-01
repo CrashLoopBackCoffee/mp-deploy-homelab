@@ -5,6 +5,7 @@ requires-python = ">=3.13"
 [manifest]
 members = [
     "homelab",
+    "ingress",
     "kubernetes",
     "paperless",
     "proxmox",
@@ -343,6 +344,7 @@ name = "homelab"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "ingress" },
     { name = "kubernetes" },
     { name = "paperless" },
     { name = "proxmox" },
@@ -358,6 +360,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "ingress", virtual = "services/ingress" },
     { name = "kubernetes", virtual = "services/kubernetes" },
     { name = "paperless", virtual = "services/paperless" },
     { name = "proxmox", virtual = "services/proxmox" },
@@ -418,6 +421,25 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/76/66/650a33bd90f786193e4de4b3ad86ea60b53c89b669a5c7be931fac31cdb0/importlib_metadata-8.7.0.tar.gz", hash = "sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000", size = 56641, upload-time = "2025-04-27T15:29:01.736Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/20/b0/36bd937216ec521246249be3bf9855081de4c5e06a0c9b4219dbeda50373/importlib_metadata-8.7.0-py3-none-any.whl", hash = "sha256:e5dd1551894c77868a30651cef00984d50e1002d06942a7101d34870c5f02afd", size = 27656, upload-time = "2025-04-27T15:29:00.214Z" },
+]
+
+[[package]]
+name = "ingress"
+version = "0.1.0"
+source = { virtual = "services/ingress" }
+dependencies = [
+    { name = "pulumi" },
+    { name = "pulumi-cloudflare" },
+    { name = "pulumi-kubernetes" },
+    { name = "pulumi-random" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pulumi", specifier = ">=3.147.0" },
+    { name = "pulumi-cloudflare", specifier = ">=6.2.0" },
+    { name = "pulumi-kubernetes", specifier = ">=4.21.0" },
+    { name = "pulumi-random", specifier = ">=4.18.2" },
 ]
 
 [[package]]
@@ -638,6 +660,20 @@ dependencies = [
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bb/f7/fdf271f5c576f380745c20c47812e98956f0871d3569125c93476ab44418/pulumi-3.169.0-py3-none-any.whl", hash = "sha256:8288d5baf63d280793d118c2df5708ed24327e59f20ecf3c86fc0900da2e8c38", size = 337496, upload-time = "2025-05-08T11:53:42.854Z" },
+]
+
+[[package]]
+name = "pulumi-cloudflare"
+version = "6.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "parver" },
+    { name = "pulumi" },
+    { name = "semver" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6a/36/3d83b738c58f7a61bb6d7cd07f3614287107d904ac4edf4ea08bf7c6ee38/pulumi_cloudflare-6.2.0.tar.gz", hash = "sha256:22fd9f02a77ccdc5359ce8e2675b3a7b758dacb2ef8efb7d3188bb443b781bb3", size = 1270107, upload-time = "2025-05-15T09:25:03.831Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/86/e4/a02f23f2f477eb6f3c99940fae673b46490493da28987744e301a4e6bab8/pulumi_cloudflare-6.2.0-py3-none-any.whl", hash = "sha256:306b8b5f3e2edc77f89db963c2068e95e41fbef6424d596c09766ca422ced6e4", size = 1970916, upload-time = "2025-05-15T09:25:00.182Z" },
 ]
 
 [[package]]

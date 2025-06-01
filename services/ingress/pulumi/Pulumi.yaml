@@ -1,5 +1,5 @@
-name: paperless
-description: Kubernetes-based deployment of paperless-ngx
+name: ingress
+description: Deployment of cloudflared-based public ingress
 pulumi:disable-default-providers:
   - kubernetes
 runtime:
