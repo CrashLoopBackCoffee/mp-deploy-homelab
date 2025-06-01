@@ -22,3 +22,4 @@ class EnvVarRef(ConfigBaseModel):
 
 class CloudflareConfig(ConfigBaseModel):
     api_token: EnvVarRef
+    zone: str = 'mpagel.de'
