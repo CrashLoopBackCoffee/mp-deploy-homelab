@@ -14,13 +14,14 @@ class UnresolvedSmbShareError(Exception):
 def create_paperless(
     component_config: ComponentConfig,
     fqdn: p.Input[str],
+    tunneled: bool,
     namespaced_provider: k8s.Provider,
 ):
     k8s_opts = p.ResourceOptions(provider=namespaced_provider)
 
     config, config_secret = configure(component_config, fqdn, k8s_opts)
     paperless_sts = deploy(component_config, config, config_secret, k8s_opts)
-    expose(fqdn, paperless_sts, k8s_opts)
+    create_service(fqdn if not tunneled else None, paperless_sts, k8s_opts)
 
 
 def configure(
@@ -279,7 +280,7 @@ def deploy(
     return sts
 
 
-def expose(fqdn, paperless_sts, k8s_opts):
+def create_service(fqdn, paperless_sts, k8s_opts):
     service = k8s.core.v1.Service(
         'paperless',
         metadata={
@@ -298,30 +299,31 @@ def expose(fqdn, paperless_sts, k8s_opts):
         opts=k8s_opts,
     )
 
-    k8s.apiextensions.CustomResource(
-        'ingress',
-        api_version='traefik.io/v1alpha1',
-        kind='IngressRoute',
-        metadata={
-            'name': 'ingress',
-        },
-        spec={
-            'entryPoints': ['websecure'],
-            'routes': [
-                {
-                    'kind': 'Rule',
-                    'match': p.Output.concat('Host(`', fqdn, '`)'),
-                    'services': [
-                        {
-                            'name': service.metadata.name,
-                            'namespace': service.metadata.namespace,
-                            'port': 'http',
-                        },
-                    ],
-                }
-            ],
-            # use default wildcard certificate:
-            'tls': {},
-        },
-        opts=k8s_opts,
-    )
+    if fqdn:
+        k8s.apiextensions.CustomResource(
+            'ingress',
+            api_version='traefik.io/v1alpha1',
+            kind='IngressRoute',
+            metadata={
+                'name': 'ingress',
+            },
+            spec={
+                'entryPoints': ['websecure'],
+                'routes': [
+                    {
+                        'kind': 'Rule',
+                        'match': p.Output.concat('Host(`', fqdn, '`)'),
+                        'services': [
+                            {
+                                'name': service.metadata.name,
+                                'namespace': service.metadata.namespace,
+                                'port': 'http',
+                            },
+                        ],
+                    }
+                ],
+                # use default wildcard certificate:
+                'tls': {},
+            },
+            opts=k8s_opts,
+        )
