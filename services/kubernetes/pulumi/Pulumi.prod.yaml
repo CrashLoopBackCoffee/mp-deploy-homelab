@@ -10,9 +10,9 @@ config:
         - name: k8s-master-0
           vmid: 120
           ipv4-address: 10.0.10.2/24
-          cores: 2
-          memory_mb_min: 2048
-          memory_mb_max: 10140
+          cores: 3
+          memory_mb_min: 16384
+          memory_mb_max: 16384
           root_disk_size_gb: 64
           data_disk_size_gb: 256
       ssh-public-key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINkV2VImBNPnGv5kyC9ybGPhMipr0VhFe1n/Ks7Sm8k4 mpagel@k8s-prod

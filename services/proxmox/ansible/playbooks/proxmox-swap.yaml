@@ -1,0 +1,25 @@
+- name: Disable /dev/pve/swap in /etc/fstab
+  hosts: pve
+  gather_facts: false
+
+  tasks:
+    - name: Remove swap entry from /etc/fstab
+      ansible.builtin.replace:
+        path: /etc/fstab
+        regexp: '^(/dev/pve/swap\s)'
+        replace: '# \1'
+        backup: true
+      notify:
+        - Disable current swap
+        - Remove swap logical volume
+
+  handlers:
+    - name: Disable current swap
+      ansible.builtin.command:
+        cmd: swapoff -a
+      changed_when: true
+
+    - name: Remove swap logical volume
+      ansible.builtin.command:
+        cmd: lvremove -f /dev/pve/swap
+      changed_when: true
