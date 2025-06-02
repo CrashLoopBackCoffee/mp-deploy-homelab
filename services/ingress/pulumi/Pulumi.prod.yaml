@@ -10,4 +10,3 @@ config:
       ingress:
         - hostname: paperless-juno.mpagel.de
           service: http://paperless.paperless-juno
-          origin-server-name: paperless-juno.app.mpagel.de
