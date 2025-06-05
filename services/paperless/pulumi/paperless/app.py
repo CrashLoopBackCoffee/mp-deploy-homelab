@@ -184,6 +184,22 @@ def deploy(
                             ],
                         },
                     ],
+                    'init_containers': [
+                        {
+                            'name': 'rclone',
+                            'image': 'ubuntu',
+                            'restart_policy': 'Always',
+                            'volume_mounts': [
+                                {
+                                    'name': 'media',
+                                    'mount_path': '/mnt/paperless/media',
+                                    'read_only': True,
+                                    'recursive_read_only': 'IfPossible',
+                                },
+                            ],
+                            'command': ['sleep', '3600'],
+                        },
+                    ],
                 },
             },
             'volume_claim_templates': [
