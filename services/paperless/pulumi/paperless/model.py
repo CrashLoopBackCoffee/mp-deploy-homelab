@@ -2,7 +2,7 @@
 
 import pydantic
 
-from utils.model import ConfigBaseModel
+from utils.model import ConfigBaseModel, EnvVarRef
 
 
 class PaperlessConfig(ConfigBaseModel):
@@ -28,7 +28,12 @@ class EntraIdConfig(ConfigBaseModel):
     client_secret: str
 
 
+class RCloneConfig(ConfigBaseModel):
+    rclone_conf_b64: EnvVarRef
+
+
 class ComponentConfig(ConfigBaseModel):
     paperless: PaperlessConfig
     redis: RedisConfig
     entraid: EntraIdConfig
+    rclone: RCloneConfig | None = None

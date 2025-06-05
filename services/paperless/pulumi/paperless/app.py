@@ -1,3 +1,5 @@
+import base64
+
 import pulumi as p
 import pulumi_kubernetes as k8s
 import pulumi_random as random
@@ -117,6 +119,63 @@ def deploy(
     config_secret: k8s.core.v1.Secret,
     k8s_opts: p.ResourceOptions,
 ) -> k8s.apps.v1.StatefulSet:
+    # TODO Refactor split between config and deploy.
+
+    if component_config.rclone:
+        rclone_conf = k8s.core.v1.Secret(
+            'rclone-conf',
+            string_data={
+                'rclone.conf': component_config.rclone.rclone_conf_b64.value.apply(
+                    lambda v: base64.b64decode(v.encode()).decode()
+                ),
+            },
+            type='Opaque',
+            opts=k8s_opts,
+        )
+
+        volumes = [
+            k8s.core.v1.VolumeArgsDict(
+                name='rclone-conf',
+                secret={
+                    'secret_name': rclone_conf.metadata.name,
+                    'items': [
+                        {
+                            'key': 'rclone.conf',
+                            'path': 'rclone.conf',
+                        }
+                    ],
+                },
+            )
+        ]
+
+        init_containers = [
+            k8s.core.v1.ContainerArgsDict(
+                {
+                    'name': 'rclone',
+                    'image': 'ubuntu',
+                    'restart_policy': 'Always',
+                    'volume_mounts': [
+                        {
+                            'name': 'rclone-conf',
+                            'mount_path': '/config/rclone',
+                            # rclone will write refresh tokens to the file:
+                            'read_only': False,
+                        },
+                        {
+                            'name': 'media',
+                            'mount_path': '/mnt/paperless/media',
+                            'read_only': True,
+                            'recursive_read_only': 'IfPossible',
+                        },
+                    ],
+                    'command': ['sleep', '3600'],
+                }
+            )
+        ]
+    else:
+        volumes = []
+        init_containers = []
+
     sts = k8s.apps.v1.StatefulSet(
         'paperless',
         metadata={'name': 'paperless'},
@@ -184,22 +243,8 @@ def deploy(
                             ],
                         },
                     ],
-                    'init_containers': [
-                        {
-                            'name': 'rclone',
-                            'image': 'ubuntu',
-                            'restart_policy': 'Always',
-                            'volume_mounts': [
-                                {
-                                    'name': 'media',
-                                    'mount_path': '/mnt/paperless/media',
-                                    'read_only': True,
-                                    'recursive_read_only': 'IfPossible',
-                                },
-                            ],
-                            'command': ['sleep', '3600'],
-                        },
-                    ],
+                    'init_containers': init_containers,
+                    'volumes': volumes,
                 },
             },
             'volume_claim_templates': [
