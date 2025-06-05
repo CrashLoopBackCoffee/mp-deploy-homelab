@@ -2,7 +2,7 @@
 
 import pydantic
 
-from utils.model import ConfigBaseModel
+from utils.model import ConfigBaseModel, EnvVarRef
 
 
 class PaperlessConfig(ConfigBaseModel):
@@ -28,7 +28,16 @@ class EntraIdConfig(ConfigBaseModel):
     client_secret: str
 
 
+class RCloneConfig(ConfigBaseModel):
+    version: str
+    rclone_conf_b64: EnvVarRef
+    """Base64 encoded rclone config file, including remote and refresh token."""
+    destination: str
+    sync_period_sec: pydantic.PositiveInt = 300
+
+
 class ComponentConfig(ConfigBaseModel):
     paperless: PaperlessConfig
     redis: RedisConfig
     entraid: EntraIdConfig
+    rclone: RCloneConfig | None = None
