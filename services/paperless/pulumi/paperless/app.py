@@ -122,10 +122,16 @@ def deploy(
     # TODO Refactor split between config and deploy.
 
     if component_config.rclone:
+        # to sync originals to a cloud drive, set up an rclone sidecar, mounting the media folder:
+        rclone_config_file_name = 'rclone.conf'
+        rclone_config_dir_readonly = '/config/rclone-read-only'
+        rclone_config_dir_write = '/config/rclone'
+        rclone_media_mount = '/mnt/paperless/media'
+
         rclone_conf = k8s.core.v1.Secret(
             'rclone-conf',
             string_data={
-                'rclone.conf': component_config.rclone.rclone_conf_b64.value.apply(
+                rclone_config_file_name: component_config.rclone.rclone_conf_b64.value.apply(
                     lambda v: base64.b64decode(v.encode()).decode()
                 ),
             },
@@ -140,8 +146,8 @@ def deploy(
                     'secret_name': rclone_conf.metadata.name,
                     'items': [
                         {
-                            'key': 'rclone.conf',
-                            'path': 'rclone.conf',
+                            'key': rclone_config_file_name,
+                            'path': rclone_config_file_name,
                         }
                     ],
                 },
@@ -152,23 +158,31 @@ def deploy(
             k8s.core.v1.ContainerArgsDict(
                 {
                     'name': 'rclone',
-                    'image': 'ubuntu',
+                    'image': f'rclone/rclone:{component_config.rclone.version[1:]}',
                     'restart_policy': 'Always',
                     'volume_mounts': [
                         {
                             'name': 'rclone-conf',
-                            'mount_path': '/config/rclone',
-                            # rclone will write refresh tokens to the file:
-                            'read_only': False,
+                            'mount_path': rclone_config_dir_readonly,
                         },
                         {
                             'name': 'media',
-                            'mount_path': '/mnt/paperless/media',
+                            'mount_path': rclone_media_mount,
                             'read_only': True,
                             'recursive_read_only': 'IfPossible',
                         },
                     ],
-                    'command': ['sleep', '3600'],
+                    'command': [
+                        'sh',
+                        '-c',
+                        f'mkdir -p {rclone_config_dir_write}; '
+                        f'cat {rclone_config_dir_readonly}/{rclone_config_file_name} > {rclone_config_dir_write}/{rclone_config_file_name}; '
+                        'while true; '
+                        f'do rclone sync {rclone_media_mount}/documents/originals {component_config.rclone.destination} '
+                        f'--config {rclone_config_dir_write}/{rclone_config_file_name} -v; '
+                        f'sleep {component_config.rclone.sync_period_sec}; '
+                        'done',
+                    ],
                 }
             )
         ]
