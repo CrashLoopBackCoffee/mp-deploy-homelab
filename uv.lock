@@ -370,7 +370,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "ansible-lint", specifier = ">=24.12.2" },
-    { name = "pyright", specifier = ">=1.1.368" },
+    { name = "pyright", specifier = ">=1.1.368,!=1.1.401" },
     { name = "ruff", specifier = ">=0.9.1" },
 ]
 

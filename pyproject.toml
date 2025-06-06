@@ -13,7 +13,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ansible-lint>=24.12.2",
-    "pyright>=1.1.368",
+    "pyright>=1.1.368,!=1.1.401",
     "ruff>=0.9.1",
 ]
 
