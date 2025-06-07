@@ -1,5 +1,7 @@
 import base64
+import pathlib
 
+import jinja2
 import pulumi as p
 import pulumi_kubernetes as k8s
 import pulumi_random as random
@@ -127,6 +129,26 @@ def deploy(
         rclone_config_dir_readonly = '/config/rclone-read-only'
         rclone_config_dir_write = '/config/rclone'
         rclone_media_mount = '/mnt/paperless/media'
+        rclone_script_name = 'rclone-sync.sh'
+
+        rclone_script = k8s.core.v1.ConfigMap(
+            rclone_script_name,
+            data={
+                rclone_script_name: jinja2.Template(
+                    pathlib.Path('assets/rclone-sync.sh').read_text(),
+                    undefined=jinja2.StrictUndefined,
+                ).render(
+                    component_config.rclone.model_dump()
+                    | {
+                        'rclone_config_file_name': rclone_config_file_name,
+                        'rclone_config_dir_readonly': rclone_config_dir_readonly,
+                        'rclone_config_dir_write': rclone_config_dir_write,
+                        'rclone_media_mount': rclone_media_mount,
+                    }
+                ),
+            },
+            opts=k8s_opts,
+        )
 
         rclone_conf = k8s.core.v1.Secret(
             'rclone-conf',
@@ -151,39 +173,45 @@ def deploy(
                         }
                     ],
                 },
-            )
+            ),
+            k8s.core.v1.VolumeArgsDict(
+                name='rclone-script',
+                config_map={
+                    'name': rclone_script.metadata.name,
+                    'items': [
+                        {
+                            'key': rclone_script_name,
+                            'path': rclone_script_name,
+                            'mode': 0o755,
+                        }
+                    ],
+                },
+            ),
         ]
 
         init_containers = [
             k8s.core.v1.ContainerArgsDict(
-                {
-                    'name': 'rclone',
-                    'image': f'rclone/rclone:{component_config.rclone.version[1:]}',
-                    'restart_policy': 'Always',
-                    'volume_mounts': [
-                        {
-                            'name': 'rclone-conf',
-                            'mount_path': rclone_config_dir_readonly,
-                        },
-                        {
-                            'name': 'media',
-                            'mount_path': rclone_media_mount,
-                            'read_only': True,
-                            'recursive_read_only': 'IfPossible',
-                        },
-                    ],
-                    'command': [
-                        'sh',
-                        '-c',
-                        f'mkdir -p {rclone_config_dir_write}; '
-                        f'cat {rclone_config_dir_readonly}/{rclone_config_file_name} > {rclone_config_dir_write}/{rclone_config_file_name}; '
-                        'while true; '
-                        f'do rclone sync {rclone_media_mount}/documents/originals {component_config.rclone.destination} '
-                        f'--config {rclone_config_dir_write}/{rclone_config_file_name} -v; '
-                        f'sleep {component_config.rclone.sync_period_sec}; '
-                        'done',
-                    ],
-                }
+                name='rclone',
+                image=f'rclone/rclone:{component_config.rclone.version[1:]}',
+                restart_policy='Always',
+                volume_mounts=[
+                    {
+                        'name': 'rclone-conf',
+                        'mount_path': rclone_config_dir_readonly,
+                    },
+                    {
+                        'name': 'media',
+                        'mount_path': rclone_media_mount,
+                        'read_only': True,
+                        'recursive_read_only': 'IfPossible',
+                    },
+                    {
+                        'name': 'rclone-script',
+                        'mount_path': '/scripts',
+                        'read_only': True,
+                    },
+                ],
+                command=['/bin/sh', '/scripts/rclone-sync.sh'],
             )
         ]
     else:
