@@ -23,4 +23,5 @@ config:
       version: v1.69.3
       rclone-conf-b64:
         envvar: RCLONE_CONF_B64__ONEDRIVE__TOM
-      destination: "onedrive:Paperless"
+      destinations:
+        - "onedrive:Paperless"

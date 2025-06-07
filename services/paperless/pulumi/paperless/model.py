@@ -32,8 +32,8 @@ class RCloneConfig(ConfigBaseModel):
     version: str
     rclone_conf_b64: EnvVarRef
     """Base64 encoded rclone config file, including remote and refresh token."""
-    destination: str
     sync_period_sec: pydantic.PositiveInt = 600
+    destinations: list[str]
 
 
 class ComponentConfig(ConfigBaseModel):
