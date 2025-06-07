@@ -21,6 +21,7 @@ config:
       # renovate: datasource=github-releases packageName=rclone/rclone versioning=semver
       version: v1.69.3
       rclone-conf-b64:
-        envvar: RCLONE_CONF_B64__ONEDRIVE__MIKE
+        envvar: RCLONE_CONF_B64__PAPERLESS
       destinations:
-        - "onedrive:Paperless"
+        - "onedrive-mike:Paperless"
+        - "onedrive-britta:Paperless"
