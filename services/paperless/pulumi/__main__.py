@@ -3,8 +3,8 @@
 import pulumi as p
 import pulumi_kubernetes as k8s
 
-from paperless.app import create_paperless
 from paperless.model import ComponentConfig
+from paperless.paperless import create_paperless
 from utils.instances import split_stack_name
 
 component_config = ComponentConfig.model_validate(p.Config().require_object('config'))
