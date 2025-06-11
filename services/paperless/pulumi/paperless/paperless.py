@@ -23,12 +23,29 @@ def create_paperless(
 ):
     k8s_opts = p.ResourceOptions(provider=namespaced_provider)
 
-    config, config_secret = configure(component_config, fqdn, k8s_opts)
-    paperless_sts = deploy(component_config, config, config_secret, k8s_opts)
+    config, config_secret = create_configurations(component_config, fqdn, k8s_opts)
+
+    sidecar_containers = []
+    sidecar_volumes = []
+
+    if component_config.rclone:
+        sidecar_containers, sidecar_volumes = create_rclone_originals_sidecar(
+            component_config, k8s_opts
+        )
+
+    paperless_sts = create_application_sts(
+        component_config,
+        config,
+        config_secret,
+        sidecar_containers,
+        sidecar_volumes,
+        k8s_opts,
+    )
+
     create_service(fqdn if not tunneled else None, paperless_sts, k8s_opts)
 
 
-def configure(
+def create_configurations(
     component_config: ComponentConfig,
     fqdn: p.Input[str],
     k8s_opts: p.ResourceOptions,
@@ -115,109 +132,117 @@ def configure(
     return config, config_secret
 
 
-def deploy(
+def create_rclone_originals_sidecar(
+    component_config: ComponentConfig,
+    k8s_opts: p.ResourceOptions,
+) -> tuple[
+    list[k8s.core.v1.ContainerArgsDict],
+    list[k8s.core.v1.VolumeArgsDict],
+]:
+    assert component_config.rclone, 'only called if configured'
+
+    # to sync originals to a cloud drive, set up an rclone sidecar, mounting the media folder:
+    rclone_config_file_name = 'rclone.conf'
+    rclone_config_dir_readonly = '/config/rclone-read-only'
+    rclone_config_dir_write = '/config/rclone'
+    rclone_media_mount = '/mnt/paperless/media'
+    rclone_script_name = 'rclone-sync.sh'
+
+    rclone_script = k8s.core.v1.ConfigMap(
+        rclone_script_name,
+        data={
+            rclone_script_name: jinja2.Template(
+                pathlib.Path('assets/rclone-sync.sh').read_text(),
+                undefined=jinja2.StrictUndefined,
+            ).render(
+                component_config.rclone.model_dump()
+                | {
+                    'rclone_config_file_name': rclone_config_file_name,
+                    'rclone_config_dir_readonly': rclone_config_dir_readonly,
+                    'rclone_config_dir_write': rclone_config_dir_write,
+                    'rclone_media_mount': rclone_media_mount,
+                }
+            ),
+        },
+        opts=k8s_opts,
+    )
+
+    rclone_conf = k8s.core.v1.Secret(
+        'rclone-conf',
+        string_data={
+            rclone_config_file_name: component_config.rclone.rclone_conf_b64.value.apply(
+                lambda v: base64.b64decode(v.encode()).decode()
+            ),
+        },
+        type='Opaque',
+        opts=k8s_opts,
+    )
+
+    volumes = [
+        k8s.core.v1.VolumeArgsDict(
+            name='rclone-conf',
+            secret={
+                'secret_name': rclone_conf.metadata.name,
+                'items': [
+                    {
+                        'key': rclone_config_file_name,
+                        'path': rclone_config_file_name,
+                    }
+                ],
+            },
+        ),
+        k8s.core.v1.VolumeArgsDict(
+            name='rclone-script',
+            config_map={
+                'name': rclone_script.metadata.name,
+                'items': [
+                    {
+                        'key': rclone_script_name,
+                        'path': rclone_script_name,
+                        'mode': 0o755,
+                    }
+                ],
+            },
+        ),
+    ]
+
+    init_containers = [
+        k8s.core.v1.ContainerArgsDict(
+            name='rclone',
+            image=f'rclone/rclone:{component_config.rclone.version[1:]}',
+            restart_policy='Always',
+            volume_mounts=[
+                {
+                    'name': 'rclone-conf',
+                    'mount_path': rclone_config_dir_readonly,
+                },
+                {
+                    'name': 'media',
+                    'mount_path': rclone_media_mount,
+                    'read_only': True,
+                    'recursive_read_only': 'IfPossible',
+                },
+                {
+                    'name': 'rclone-script',
+                    'mount_path': '/scripts',
+                    'read_only': True,
+                },
+            ],
+            command=['/bin/sh', '/scripts/rclone-sync.sh'],
+        )
+    ]
+
+    return init_containers, volumes
+
+
+def create_application_sts(
     component_config: ComponentConfig,
     config: k8s.core.v1.ConfigMap,
     config_secret: k8s.core.v1.Secret,
+    sidecar_containers: list[k8s.core.v1.ContainerArgsDict],
+    sidecar_volumes: list[k8s.core.v1.VolumeArgsDict],
     k8s_opts: p.ResourceOptions,
 ) -> k8s.apps.v1.StatefulSet:
-    # TODO Refactor split between config and deploy.
-
-    if component_config.rclone:
-        # to sync originals to a cloud drive, set up an rclone sidecar, mounting the media folder:
-        rclone_config_file_name = 'rclone.conf'
-        rclone_config_dir_readonly = '/config/rclone-read-only'
-        rclone_config_dir_write = '/config/rclone'
-        rclone_media_mount = '/mnt/paperless/media'
-        rclone_script_name = 'rclone-sync.sh'
-
-        rclone_script = k8s.core.v1.ConfigMap(
-            rclone_script_name,
-            data={
-                rclone_script_name: jinja2.Template(
-                    pathlib.Path('assets/rclone-sync.sh').read_text(),
-                    undefined=jinja2.StrictUndefined,
-                ).render(
-                    component_config.rclone.model_dump()
-                    | {
-                        'rclone_config_file_name': rclone_config_file_name,
-                        'rclone_config_dir_readonly': rclone_config_dir_readonly,
-                        'rclone_config_dir_write': rclone_config_dir_write,
-                        'rclone_media_mount': rclone_media_mount,
-                    }
-                ),
-            },
-            opts=k8s_opts,
-        )
-
-        rclone_conf = k8s.core.v1.Secret(
-            'rclone-conf',
-            string_data={
-                rclone_config_file_name: component_config.rclone.rclone_conf_b64.value.apply(
-                    lambda v: base64.b64decode(v.encode()).decode()
-                ),
-            },
-            type='Opaque',
-            opts=k8s_opts,
-        )
-
-        volumes = [
-            k8s.core.v1.VolumeArgsDict(
-                name='rclone-conf',
-                secret={
-                    'secret_name': rclone_conf.metadata.name,
-                    'items': [
-                        {
-                            'key': rclone_config_file_name,
-                            'path': rclone_config_file_name,
-                        }
-                    ],
-                },
-            ),
-            k8s.core.v1.VolumeArgsDict(
-                name='rclone-script',
-                config_map={
-                    'name': rclone_script.metadata.name,
-                    'items': [
-                        {
-                            'key': rclone_script_name,
-                            'path': rclone_script_name,
-                            'mode': 0o755,
-                        }
-                    ],
-                },
-            ),
-        ]
-
-        init_containers = [
-            k8s.core.v1.ContainerArgsDict(
-                name='rclone',
-                image=f'rclone/rclone:{component_config.rclone.version[1:]}',
-                restart_policy='Always',
-                volume_mounts=[
-                    {
-                        'name': 'rclone-conf',
-                        'mount_path': rclone_config_dir_readonly,
-                    },
-                    {
-                        'name': 'media',
-                        'mount_path': rclone_media_mount,
-                        'read_only': True,
-                        'recursive_read_only': 'IfPossible',
-                    },
-                    {
-                        'name': 'rclone-script',
-                        'mount_path': '/scripts',
-                        'read_only': True,
-                    },
-                ],
-                command=['/bin/sh', '/scripts/rclone-sync.sh'],
-            )
-        ]
-    else:
-        volumes = []
-        init_containers = []
-
     sts = k8s.apps.v1.StatefulSet(
         'paperless',
         metadata={'name': 'paperless'},
@@ -285,8 +310,8 @@ def deploy(
                             ],
                         },
                     ],
-                    'init_containers': init_containers,
-                    'volumes': volumes,
+                    'init_containers': sidecar_containers,
+                    'volumes': sidecar_volumes,
                 },
             },
             'volume_claim_templates': [
