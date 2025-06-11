@@ -298,6 +298,12 @@ def create_application_sts(
                                     }
                                 },
                             ],
+                            'readiness_probe': {
+                                'http_get': {
+                                    'port': 'http',
+                                    'path': '/api/health',
+                                }
+                            },
                         },
                         {
                             'name': 'broker',
@@ -308,6 +314,11 @@ def create_application_sts(
                                     'container_port': component_config.redis.port,
                                 },
                             ],
+                            'readiness_probe': {
+                                'exec_': {
+                                    'command': ['redis-cli', 'ping'],
+                                },
+                            },
                         },
                     ],
                     'init_containers': sidecar_containers,
