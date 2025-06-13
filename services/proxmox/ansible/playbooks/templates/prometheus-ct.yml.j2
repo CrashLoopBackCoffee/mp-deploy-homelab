@@ -28,7 +28,7 @@ scrape_configs:
     static_configs:
       - targets:
           - "{{ prometheus.kube_state_metrics.target }}"
-        labels: {{ prometheus.labels }}
+        labels: {{ {'cluster': 'microk8s-cluster'}.__or__(prometheus.labels) }}
 
 remote_write:
   - url: "{{ prometheus.remote.push_url }}"
