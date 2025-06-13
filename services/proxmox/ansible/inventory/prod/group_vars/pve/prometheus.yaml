@@ -7,6 +7,8 @@ prometheus:
     password:
       "{{ lookup('password', '.credentials/{{ inventory_hostname }}/pve-exporter
       chars=ascii_letters,digits,hexdigits length=32') }}"
+  kube_state_metrics:
+    target: kube-state-metrics.app.mpagel.de
   remote:
     push_url: "{{ lookup('env', 'PROMETHEUS_REMOTE_PUSH_URL', default=Undefined) }}"
     username: "{{ lookup('env', 'PROMETHEUS_REMOTE_USERNAME', default=Undefined) }}"

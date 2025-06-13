@@ -12,6 +12,7 @@ import pulumi_proxmoxve as proxmoxve
 from utils import unify
 
 from kubernetes.cert_manager import ensure_cert_manager
+from kubernetes.kube_state_metrics import ensure_kube_state_metrics
 from kubernetes.metallb import ensure_metallb
 from kubernetes.model import ComponentConfig
 from kubernetes.samba import ensure_smb
@@ -256,3 +257,4 @@ def create_microk8s(component_config: ComponentConfig, proxmox_provider: proxmox
         )
 
         ensure_smb(component_config, k8s_provider)
+        ensure_kube_state_metrics(component_config, k8s_provider)

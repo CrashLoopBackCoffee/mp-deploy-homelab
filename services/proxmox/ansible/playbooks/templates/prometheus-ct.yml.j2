@@ -22,6 +22,14 @@ scrape_configs:
       - targets: {{ groups.all | map('regex_replace', '^(.*)$', '\\1:9100') }}
         labels: {{ prometheus.labels }}
 
+  - job_name: kube-state-metrics
+    metrics_path: /metrics
+    scheme: https
+    static_configs:
+      - targets:
+          - "{{ prometheus.kube_state_metrics.target }}"
+        labels: {{ {'cluster': 'microk8s-cluster'}.__or__(prometheus.labels) }}
+
 remote_write:
   - url: "{{ prometheus.remote.push_url }}"
     basic_auth:
