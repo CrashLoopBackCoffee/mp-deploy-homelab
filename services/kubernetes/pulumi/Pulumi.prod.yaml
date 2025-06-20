@@ -37,4 +37,5 @@ config:
       # renovate: datasource=github-releases packageName=kubernetes-csi/csi-driver-smb versioning=loose
       version: v1.18.0
     kube-state-metrics:
+      # renovate: datasource=helm packageName=prometheus-community/kube-state-metrics versioning=semver
       version: v5.36.0
