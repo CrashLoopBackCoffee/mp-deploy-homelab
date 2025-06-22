@@ -1,4 +1,4 @@
 collections:
   - name: prometheus.prometheus
-    # renovate: datasource=github-releases packageName=prometheus-community/ansible versioning=semver
+    # renovate: datasource=galaxy-collection packageName=prometheus.prometheus versioning=pep440
     version: 0.26.2
