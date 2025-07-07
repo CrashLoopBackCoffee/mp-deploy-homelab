@@ -22,12 +22,6 @@ class RedisConfig(ConfigBaseModel):
     port: pydantic.PositiveInt = 6379
 
 
-class EntraIdConfig(ConfigBaseModel):
-    tenant_id: str = '19d0fb13-2d87-4699-9ae2-6e431148a6ae'
-    client_id: str
-    client_secret: str
-
-
 class RCloneConfig(ConfigBaseModel):
     version: str
     rclone_conf_b64: EnvVarRef
@@ -39,5 +33,4 @@ class RCloneConfig(ConfigBaseModel):
 class ComponentConfig(ConfigBaseModel):
     paperless: PaperlessConfig
     redis: RedisConfig
-    entraid: EntraIdConfig
     rclone: RCloneConfig | None = None

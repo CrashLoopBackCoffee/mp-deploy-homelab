@@ -13,10 +13,6 @@ config:
     redis:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
       version: 8.0.2
-    entraid:
-      client-id: 89f2baa9-6e88-4a00-8c06-f6151b0b921b
-      client-secret:
-        secure: AAABAHte31+di+VZN6WXVyyVy37AXWMki3s86fh6CVhSFMeM9DKwVFiZRAuFg4azIf5SyVaUj1bXelCBFwFWmGbDwMOzzqNP
     rclone:
       # renovate: datasource=github-releases packageName=rclone/rclone versioning=semver
       version: v1.70.2
