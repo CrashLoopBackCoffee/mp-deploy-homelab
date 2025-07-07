@@ -13,7 +13,7 @@ config:
       external-hostname: paperless-juno.mpagel.de
     redis:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
-      version: 8.0.3
+      version: 8.0.2
     entraid:
       client-id: bb005af2-2cc0-49a8-9e2e-923e8869e369
       client-secret:
