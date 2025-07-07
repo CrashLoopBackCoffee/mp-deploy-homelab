@@ -19,7 +19,7 @@ config:
         secure: AAABAHte31+di+VZN6WXVyyVy37AXWMki3s86fh6CVhSFMeM9DKwVFiZRAuFg4azIf5SyVaUj1bXelCBFwFWmGbDwMOzzqNP
     rclone:
       # renovate: datasource=github-releases packageName=rclone/rclone versioning=semver
-      version: v1.70.1
+      version: v1.70.2
       rclone-conf-b64:
         envvar: RCLONE_CONF_B64__PAPERLESS
       destinations:
