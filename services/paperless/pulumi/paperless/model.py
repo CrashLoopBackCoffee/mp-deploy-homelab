@@ -5,6 +5,15 @@ import pydantic
 from utils.model import ConfigBaseModel, EnvVarRef
 
 
+class SmtpConfig(ConfigBaseModel):
+    host: str = 'smtp.strato.de'
+    port: pydantic.PositiveInt = 465
+    email: str
+    password: EnvVarRef
+    use_tls: bool = False
+    use_ssl: bool = True
+
+
 class PaperlessConfig(ConfigBaseModel):
     version: str
     port: pydantic.PositiveInt = 8000
@@ -15,6 +24,7 @@ class PaperlessConfig(ConfigBaseModel):
     exporter_kubectl_version: str
     exporter_schedule: str = '30 3 * * *'
     external_hostname: str | None = None
+    smtp: SmtpConfig | None = None
 
 
 class RedisConfig(ConfigBaseModel):
