@@ -56,6 +56,19 @@ def create_configurations(
     p.export('admin-username', admin_username)
     p.export('admin-password', admin_password)
 
+    if smtp := component_config.paperless.smtp:
+        smtp_data = {
+            'PAPERLESS_EMAIL_HOST': smtp.host,
+            'PAPERLESS_EMAIL_PORT': str(smtp.port),
+            'PAPERLESS_EMAIL_FROM': smtp.email,
+            'PAPERLESS_EMAIL_HOST_USER': smtp.email,
+            'PAPERLESS_EMAIL_HOST_PASSWORD': smtp.password.value,
+            'PAPERLESS_EMAIL_USE_TLS': str(smtp.use_tls).lower(),
+            'PAPERLESS_EMAIL_USE_SSL': str(smtp.use_ssl).lower(),
+        }
+    else:
+        smtp_data = {}
+
     config = k8s.core.v1.ConfigMap(
         'config',
         data={
@@ -65,13 +78,15 @@ def create_configurations(
             'PAPERLESS_ADMIN_USER': admin_username,
             'PAPERLESS_APPS': ','.join(('allauth.socialaccount.providers.openid_connect',)),
             'PAPERLESS_CONSUMER_POLLING': '30',
-            'PAPERLESS_ACCOUNT_EMAIL_VERIFICATION': 'none',
+            'PAPERLESS_ACCOUNT_EMAIL_VERIFICATION': 'optional' if smtp else 'none',
+            'PAPERLESS_ACCOUNT_ALLOW_SIGNUPS': 'false',
             'PAPERLESS_CONSUMER_RECURSIVE': 'true',
             'PAPERLESS_CONSUMER_ENABLE_BARCODES': 'true',
             'PAPERLESS_CONSUMER_BARCODE_SCANNER': 'ZXING',
             'PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE': 'true',
             'PAPERLESS_CONSUMER_BARCODE_MAX_PAGES': '1',
-        },
+        }
+        | smtp_data,
         opts=k8s_opts,
     )
 
