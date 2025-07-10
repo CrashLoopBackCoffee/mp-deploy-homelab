@@ -8,7 +8,7 @@ config:
       consume-size-mb: 200
       export-size-gb: 4
       # renovate: datasource=docker packageName=bitnami/kubectl versioning=docker
-      exporter-kubectl-version: 1.33.1
+      exporter-kubectl-version: 1.33.2
     redis:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
       version: 8.0.3
