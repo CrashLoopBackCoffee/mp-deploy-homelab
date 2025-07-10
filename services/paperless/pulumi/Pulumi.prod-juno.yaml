@@ -9,7 +9,7 @@ config:
       export-size-gb: 4
       exporter-schedule: "45 6-23 * * *"
       # renovate: datasource=docker packageName=bitnami/kubectl versioning=docker
-      exporter-kubectl-version: 1.33.1
+      exporter-kubectl-version: 1.33.2
       external-hostname: paperless-juno.mpagel.de
       smtp:
         email: paperless-juno@mpagel.de
