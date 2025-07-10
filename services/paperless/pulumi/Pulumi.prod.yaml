@@ -23,5 +23,4 @@ config:
       rclone-conf-b64:
         envvar: RCLONE_CONF_B64__PAPERLESS
       destinations:
-        - "onedrive-mike:Paperless"
-        - "onedrive-britta:Paperless"
+        - "nextcloud-mike:/Documents/Paperless"
