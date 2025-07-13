@@ -17,3 +17,10 @@ config:
     redis:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
       version: 8.0.3
+    rclone:
+      # renovate: datasource=github-releases packageName=rclone/rclone versioning=semver
+      version: v1.70.3
+      rclone-conf-b64:
+        envvar: RCLONE_CONF_B64__PAPERLESS__BEN
+      destinations:
+        - "icloud:/Paperless"
