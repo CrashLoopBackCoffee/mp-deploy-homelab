@@ -1,4 +1,5 @@
 .ansible/
+*.egg-info/
 *.log
 *.pyc
 .ruff_cache/
