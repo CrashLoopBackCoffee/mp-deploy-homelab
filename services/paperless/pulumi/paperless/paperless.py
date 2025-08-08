@@ -378,7 +378,7 @@ def create_application_sts(
                             'containers': [
                                 {
                                     'name': 'exporter',
-                                    'image': f'bitnami/kubectl:{component_config.paperless.exporter_kubectl_version}',
+                                    'image': f'registry.k8s.io/kubectl:{component_config.paperless.exporter_kubectl_version}',
                                     'command': ['/bin/sh', '-c', export_command],
                                 }
                             ],
