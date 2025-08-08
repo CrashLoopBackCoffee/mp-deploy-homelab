@@ -358,8 +358,8 @@ def create_application_sts(
         opts=k8s_opts,
     )
 
-    export_command = p.Output.concat(
-        'kubectl exec statefulset/',
+    kubectl_args = p.Output.concat(
+        'exec statefulset/',
         sts.metadata.name,
         ' -c webserver -- '
         'document_exporter ../export --delete --use-filename-format --use-folder-prefix --no-progress-bar',
@@ -379,7 +379,7 @@ def create_application_sts(
                                 {
                                     'name': 'exporter',
                                     'image': f'registry.k8s.io/kubectl:{component_config.paperless.exporter_kubectl_version}',
-                                    'command': ['/bin/sh', '-c', export_command],
+                                    'args': kubectl_args.apply(lambda a: a.split(' ')),
                                 }
                             ],
                             'restart_policy': 'Never',
