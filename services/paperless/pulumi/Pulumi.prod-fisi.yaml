@@ -8,8 +8,8 @@ config:
       consume-size-mb: 512
       export-size-gb: 4
       exporter-schedule: "02 6-23 * * *"
-      # renovate: datasource=docker packageName=bitnami/kubectl versioning=docker
-      exporter-kubectl-version: 1.33.3
+      # renovate: datasource=docker registryUrl=https://registry.k8s.io packageName=kubectl versioning=docker
+      exporter-kubectl-version: v1.33.3
       smtp:
         email: paperless-fisi@mpagel.de
         password:
