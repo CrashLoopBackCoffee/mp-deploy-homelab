@@ -10,6 +10,7 @@ config:
       exporter-schedule: "02 6-23 * * *"
       # renovate: datasource=docker registryUrl=https://registry.k8s.io packageName=kubectl versioning=docker
       exporter-kubectl-version: v1.33.4
+      external-hostname: paperless-fisi.mpagel.de
       smtp:
         email: paperless-fisi@mpagel.de
         password:
