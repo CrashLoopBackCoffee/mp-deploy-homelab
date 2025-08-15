@@ -10,3 +10,5 @@ config:
       ingress:
         - hostname: paperless-juno.mpagel.de
           service: http://paperless.paperless-juno
+        - hostname: paperless-fisi.mpagel.de
+          service: http://paperless.paperless-fisi
