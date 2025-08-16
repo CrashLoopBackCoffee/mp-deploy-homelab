@@ -4,7 +4,6 @@
 - import_playbook: proxmox-grub-usb.yaml  # noqa: name[play]
 - import_playbook: proxmox-notifications.yaml  # noqa: name[play]
 - import_playbook: proxmox-acme.yaml  # noqa: name[play]
-- import_playbook: proxmox-backup.yaml  # noqa: name[play]
 - import_playbook: proxmox-host-backup.yaml  # noqa: name[play]
 - import_playbook: proxmox-local-snippets.yaml  # noqa: name[play]
 - import_playbook: proxmox-node-exporter.yaml  # noqa: name[play]
