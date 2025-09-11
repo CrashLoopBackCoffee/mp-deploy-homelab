@@ -2,7 +2,7 @@ config:
   paperless:config:
     paperless:
       # renovate: datasource=github-releases packageName=paperless-ngx/paperless-ngx versioning=semver
-      version: 2.18.3
+      version: 2.18.4
       data-size-gb: 16
       media-size-gb: 16
       consume-size-mb: 512
