@@ -1,6 +1,7 @@
 pbs:
   hosts:
     pbs.mpagel.de: ~
+    pbs-s3.mpagel.de: ~
 
 pve:
   hosts:
