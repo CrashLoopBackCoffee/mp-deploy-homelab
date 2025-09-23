@@ -1,6 +1,8 @@
 - name: Backup Proxmox hosts (not VMs) to PBS with the proxmox-backup-client
   hosts: pve,pbs
   gather_facts: false
+  vars:
+    keyfile: /root/pbs-encryption-key.json
   tasks:
     - name: Configure host-level backup if defined
       when: host_backup is defined
@@ -11,6 +13,12 @@
             name: PBS_PASSWORD
             job: "{{ host_backup.password }}"
 
+        - name: Add keyfile for encryption
+          ansible.builtin.copy:
+            dest: "{{ keyfile }}"
+            content: "{{ host_backup.encryption_key }}"
+            mode: "0600"
+
         - name: Add cron job for host backup
           ansible.builtin.cron:
             name: Host backup to PBS
@@ -18,6 +26,7 @@
               proxmox-backup-client backup
                 --repository {{ host_backup.repository }}
                 --ns {{ host_backup.namespace }}
+                --keyfile {{ keyfile }}
                 {{ host_backup.archives | join(' ') }}
             minute: "{{ 60 | random(seed=inventory_hostname ~ '1') }}"
             hour: "{{ 24 | random(seed=inventory_hostname ~ '1') }}"
