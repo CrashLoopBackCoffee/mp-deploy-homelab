@@ -2,7 +2,7 @@
 - name: Update MicroK8s to specified version
   hosts: master
   become: true
-  gather_facts: true
+  gather_facts: false
   vars:
     target_version: "{{ microk8s.version }}"
     target_channel: "{{ target_version }}/stable"
@@ -12,6 +12,7 @@
       ansible.builtin.assert:
         that:
           - groups['master'] | length == 1
+          - groups['worker'] | length == 0
         fail_msg: This playbook is designed for single-node clusters only. Found {{ groups['master'] | length }} master nodes.
 
     - name: Get current MicroK8s major.minor version
