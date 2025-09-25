@@ -11,3 +11,6 @@ dependencies = [
     "pulumi-kubernetes>=4.21.0",
     "utils",
 ]
+
+[tool.setuptools.packages.find]
+exclude = ["ansible"]
