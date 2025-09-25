@@ -1,0 +1,68 @@
+---
+- name: Update MicroK8s to specified version
+  hosts: master
+  become: true
+  gather_facts: false
+  vars:
+    target_version: "{{ microk8s.version }}"
+    target_channel: "{{ target_version }}/stable"
+
+  pre_tasks:
+    - name: Ensure single node update is possible
+      ansible.builtin.assert:
+        that:
+          - groups['master'] | length == 1
+          - groups['worker'] | length == 0
+        fail_msg: This playbook is designed for single-node clusters only. Found {{ groups['master'] | length }} master nodes.
+
+    - name: Get current MicroK8s major.minor version
+      ansible.builtin.shell: |
+        set -o pipefail
+        snap list microk8s | tail -n 1 | awk '{gsub(/^v/, "", $2); split($2, v, "."); print v[1] "." v[2]}'
+      args:
+        executable: /bin/bash
+      register: current_version
+      changed_when: false
+      check_mode: false
+
+    - name: Display current and target versions
+      ansible.builtin.debug:
+        msg:
+          - "Current MicroK8s version: {{ current_version.stdout }}"
+          - "Target MicroK8s version: {{ target_version }}"
+
+    - name: Exit if already at target version
+      ansible.builtin.meta: end_play
+      when: current_version.stdout == target_version
+
+  tasks:
+    - name: Refresh MicroK8s snap to target channel
+      ansible.builtin.command: snap refresh microk8s --channel={{ target_channel }}
+      timeout: 300
+      changed_when: true
+
+    - name: Wait for MicroK8s to be ready after upgrade
+      ansible.builtin.command: microk8s status --wait-ready --timeout 120
+      retries: 3
+      delay: 10
+      until: post_upgrade_status.rc == 0
+      register: post_upgrade_status
+      changed_when: false
+      check_mode: false
+
+    - name: Verify upgrade was successful
+      ansible.builtin.shell: |
+        set -o pipefail
+        snap list microk8s | tail -n 1 | awk '{gsub(/^v/, "", $2); split($2, v, "."); print v[1] "." v[2]}'
+      args:
+        executable: /bin/bash
+      register: final_version
+      changed_when: false
+      check_mode: false
+
+    - name: Assert upgrade completed successfully
+      ansible.builtin.assert:
+        that:
+          - final_version.stdout == target_version
+        fail_msg: Upgrade failed. Expected version {{ target_version }}, got {{ final_version.stdout }}.
+        success_msg: MicroK8s successfully upgraded to version {{ target_version }}.

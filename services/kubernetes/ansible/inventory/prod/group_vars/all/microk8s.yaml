@@ -1,0 +1,3 @@
+microk8s:
+  # renovate: datasource=github-tags packageName=canonical/microk8s versioning=loose
+  version: "1.33"

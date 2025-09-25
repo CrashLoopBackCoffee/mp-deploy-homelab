@@ -1,0 +1,6 @@
+master:
+  hosts:
+    k8s-master-0: ~
+
+worker:
+  hosts: {}
