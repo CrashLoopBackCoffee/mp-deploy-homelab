@@ -30,6 +30,12 @@
             versioningTemplate: '{{#if versioning}}{{versioning}}{{else}}semver{{/if}}',
         },
     ],
+    packageRules: [
+        {
+            matchPackageNames: ['canonical/microk8s'],
+            separateMultipleMinor: true,
+        },
+    ],
     prHourlyLimit: 10,
     rangeStrategy: 'replace',
 }
