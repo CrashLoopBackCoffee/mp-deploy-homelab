@@ -85,6 +85,8 @@ def create_configurations(
             'PAPERLESS_CONSUMER_BARCODE_SCANNER': 'ZXING',
             'PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE': 'true',
             'PAPERLESS_CONSUMER_BARCODE_MAX_PAGES': '1',
+            # see https://docs.paperless-ngx.com/troubleshooting/#consumption-fails-with-ghostscript-pdfa-rendering-failed
+            'PAPERLESS_OCR_USER_ARGS': '{"continue_on_soft_render_error": true}',
         }
         | smtp_data,
         opts=k8s_opts,
