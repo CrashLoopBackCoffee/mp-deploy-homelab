@@ -35,4 +35,4 @@ config:
         envvar: CLOUDFLARE_TOKEN
     csi-driver-smb:
       # renovate: datasource=github-releases packageName=kubernetes-csi/csi-driver-smb versioning=loose
-      version: v1.18.0
+      version: v1.19.0
