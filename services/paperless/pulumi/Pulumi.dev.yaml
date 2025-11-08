@@ -11,4 +11,4 @@ config:
       exporter-kubectl-version: v1.34.1
     redis:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
-      version: 8.2.2
+      version: 8.2.3
