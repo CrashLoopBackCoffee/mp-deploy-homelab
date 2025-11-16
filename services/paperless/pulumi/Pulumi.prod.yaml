@@ -2,24 +2,24 @@ config:
   paperless:config:
     paperless:
       # renovate: datasource=github-releases packageName=paperless-ngx/paperless-ngx versioning=semver
-      version: 2.18.4
+      version: 2.19.6
       data-size-gb: 16
       media-size-gb: 16
       consume-size-mb: 512
       export-size-gb: 4
       exporter-schedule: "15 6-23 * * *"
       # renovate: datasource=docker registryUrl=https://registry.k8s.io packageName=kubectl versioning=docker
-      exporter-kubectl-version: v1.34.1
+      exporter-kubectl-version: v1.34.2
       smtp:
         email: paperless@mpagel.de
         password:
           envvar: STRATO_PAPERLESS_MPAGEL_DE_PASSWORD
     redis:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
-      version: 8.2.2
+      version: 8.2.3
     rclone:
       # renovate: datasource=github-releases packageName=rclone/rclone versioning=semver
-      version: v1.71.1
+      version: v1.71.2
       rclone-conf-b64:
         envvar: RCLONE_CONF_B64__PAPERLESS
       destinations:

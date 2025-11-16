@@ -29,7 +29,7 @@ config:
       acme-email: mike@mpagel.de
     traefik:
       # renovate: datasource=github-releases packageName=traefik/traefik-helm-chart versioning=semver
-      version:  v37.1.2
+      version:  v37.3.0
     cloudflare:
       api-token:
         envvar: CLOUDFLARE_TOKEN
@@ -38,4 +38,4 @@ config:
       version: v1.19.1
     kube-state-metrics:
       # renovate: datasource=helm registryUrl=https://prometheus-community.github.io/helm-charts packageName=kube-state-metrics versioning=helm
-      version: 6.3.0
+      version: 6.4.1
