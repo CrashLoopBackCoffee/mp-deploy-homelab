@@ -8,7 +8,7 @@ config:
       consume-size-mb: 200
       export-size-gb: 4
       # renovate: datasource=docker registryUrl=https://registry.k8s.io packageName=kubectl versioning=docker
-      exporter-kubectl-version: v1.34.1
+      exporter-kubectl-version: v1.34.2
     redis:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
       version: 8.2.3
