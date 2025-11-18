@@ -16,7 +16,7 @@ config:
           envvar: STRATO_PAPERLESS_MPAGEL_DE_PASSWORD
     redis:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
-      version: 8.2.3
+      version: 8.4.0
     rclone:
       # renovate: datasource=github-releases packageName=rclone/rclone versioning=semver
       version: v1.71.2
