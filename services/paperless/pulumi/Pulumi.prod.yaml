@@ -19,7 +19,7 @@ config:
       version: 8.2.3
     rclone:
       # renovate: datasource=github-releases packageName=rclone/rclone versioning=semver
-      version: v1.71.2
+      version: v1.72.0
       rclone-conf-b64:
         envvar: RCLONE_CONF_B64__PAPERLESS
       destinations:
