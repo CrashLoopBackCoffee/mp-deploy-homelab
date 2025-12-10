@@ -9,7 +9,7 @@ config:
       export-size-gb: 4
       exporter-schedule: "45 6-23 * * *"
       # renovate: datasource=docker registryUrl=https://registry.k8s.io packageName=kubectl versioning=docker
-      exporter-kubectl-version: v1.34.2
+      exporter-kubectl-version: v1.34.3
       external-hostname: paperless-juno.mpagel.de
       smtp:
         email: paperless-juno@mpagel.de
