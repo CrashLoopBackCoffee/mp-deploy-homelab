@@ -18,7 +18,7 @@ config:
       # renovate: datasource=github-releases packageName=redis/redis versioning=semver
       version: 8.4.0
     rclone:
-      # renovate: datasource=github-releases packageName=rclone/rclone versioning=semver
+      # renovate: datasource=docker packageName=rclone/rclone versioning=docker
       version: v1.72.0
       rclone-conf-b64:
         envvar: RCLONE_CONF_B64__PAPERLESS
