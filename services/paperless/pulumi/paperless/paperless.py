@@ -186,7 +186,7 @@ def create_rclone_originals_sidecar(
     init_containers = [
         k8s.core.v1.ContainerArgsDict(
             name='rclone',
-            image=f'rclone/rclone:{component_config.rclone.version[1:]}',
+            image=f'rclone/rclone:{component_config.rclone.version}',
             restart_policy='Always',
             volume_mounts=[
                 {
