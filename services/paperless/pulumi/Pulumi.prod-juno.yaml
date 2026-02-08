@@ -16,7 +16,7 @@ config:
         password:
           envvar: STRATO_PAPERLESS_JUNO_MPAGEL_DE_PASSWORD
     redis:
-      # renovate: datasource=github-releases packageName=redis/redis versioning=semver
+      # renovate: datasource=docker packageName=redis versioning=docker
       version: 8.4.0
     rclone:
       # renovate: datasource=docker packageName=rclone/rclone versioning=docker
