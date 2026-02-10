@@ -57,7 +57,7 @@ def ensure_smb(component_config: ComponentConfig, k8s_provider: k8s.Provider):
                 k8s_opts=k8s_opts,
             )
 
-    samba_stack.get_output('smb-shares').apply(lambda names: create_storage_classes(names))
+    samba_stack.get_output('smb-shares').apply(create_storage_classes)
 
 
 def _create_smb_storage_class(
