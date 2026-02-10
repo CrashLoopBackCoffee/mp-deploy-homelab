@@ -16,7 +16,7 @@ config:
           envvar: STRATO_PAPERLESS_MPAGEL_DE_PASSWORD
     redis:
       # renovate: datasource=docker packageName=redis versioning=docker
-      version: 8.4.0
+      version: 8.6.0
     rclone:
       # renovate: datasource=docker packageName=rclone/rclone versioning=docker
       version: 1.73.0
