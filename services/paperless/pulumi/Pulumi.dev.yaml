@@ -11,4 +11,4 @@ config:
       exporter-kubectl-version: v1.35.1
     redis:
       # renovate: datasource=docker packageName=redis versioning=docker
-      version: 8.4.0
+      version: 8.6.0
