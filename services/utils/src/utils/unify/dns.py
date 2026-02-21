@@ -1,9 +1,13 @@
+import logging
 import typing as t
 
 import httpx
 import pulumi as p
 
 from utils.unify.api import UnifyApiDnsRecord
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s %(message)s', level=logging.WARNING)
+logger = logging.getLogger(__name__)
 
 
 class DnsRecordNotFoundError(RuntimeError):
@@ -41,7 +45,7 @@ class UnifyDnsRecordProvider(p.dynamic.ResourceProvider):
             )
 
             if response.is_error:
-                p.log.error(response.json())
+                logger.error(response.json())
                 response.raise_for_status()
 
             dns_record = UnifyApiDnsRecord.model_validate(response.json())
@@ -55,7 +59,7 @@ class UnifyDnsRecordProvider(p.dynamic.ResourceProvider):
             response = client.delete(f'proxy/network/v2/api/site/default/static-dns/{_id}')
 
             if response.is_error:
-                p.log.error(response.json())
+                logger.error(response.json())
                 response.raise_for_status()
 
     @t.override
@@ -74,7 +78,7 @@ class UnifyDnsRecordProvider(p.dynamic.ResourceProvider):
             )
 
             if response.is_error:
-                p.log.error(response.json())
+                logger.error(response.json())
                 response.raise_for_status()
 
         return p.dynamic.UpdateResult(outs=_news)
@@ -85,7 +89,7 @@ class UnifyDnsRecordProvider(p.dynamic.ResourceProvider):
             response = client.get('proxy/network/v2/api/site/default/static-dns')
 
             if response.is_error:
-                p.log.error(response.json())
+                logger.error(response.json())
                 response.raise_for_status()
 
         for dns_record_dict in response.json():
