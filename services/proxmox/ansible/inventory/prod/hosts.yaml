@@ -5,3 +5,4 @@ pbs:
 pve:
   hosts:
     pve-01.mpagel.de: ~
+    pve-02.mpagel.de: ~

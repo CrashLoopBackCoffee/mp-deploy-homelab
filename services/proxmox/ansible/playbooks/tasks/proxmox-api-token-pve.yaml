@@ -29,3 +29,4 @@
         api_token_object: '{{ create_token_result.stdout | from_json }}'
       delegate_to: localhost
       changed_when: true
+      when: not ansible_check_mode
