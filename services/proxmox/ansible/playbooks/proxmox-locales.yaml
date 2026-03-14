@@ -49,8 +49,12 @@
 
     - name: Ensure all required locales are installed
       ansible.builtin.assert:
-        that:
-          - item in (locale_list_after_result.stdout_lines | map('replace', '.utf8', '.UTF-8') | map('replace', '.utf-8', '.UTF-8') | map('replace', '.UTF8', '.UTF-8') | list)
+        that: >-
+          item in (locale_list_after_result.stdout_lines
+          | map('replace', '.utf8', '.UTF-8')
+          | map('replace', '.utf-8', '.UTF-8')
+          | map('replace', '.UTF8', '.UTF-8')
+          | list)
         fail_msg: 'Locale {{ item }} is still missing after locale generation.'
         success_msg: 'Locale {{ item }} is available.'
       loop: '{{ required_locales }}'

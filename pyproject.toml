@@ -90,7 +90,6 @@ reportMatchNotExhaustive = true
 reportPrivateUsage = true
 reportPropertyTypeMismatch = true
 reportSelfClsParameterName = true
-reportShadowedImports = true
 reportTypeCommentUsage = true
 reportUnnecessaryCast = true
 reportUnnecessaryComparison = true
