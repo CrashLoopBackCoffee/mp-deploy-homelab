@@ -8,8 +8,8 @@
     - name: Install kernel modules extra and UTF-8 support
       ansible.builtin.apt:
         name:
-          - linux-modules-extra-{{ ansible_kernel }}
+          - linux-modules-extra-{{ ansible_facts["kernel"] }}
           - locales
         state: present
         update_cache: true
-      when: ansible_os_family == "Debian"
+      when: ansible_facts["os_family"] == "Debian"
