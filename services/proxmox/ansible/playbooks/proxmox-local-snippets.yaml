@@ -4,7 +4,7 @@
   tasks:
     - name: Get list of storage types on local
       ansible.builtin.command:
-        pvesh get /nodes/{{ ansible_hostname }}/storage/local/status --output-format=json
+        pvesh get /nodes/{{ ansible_facts["hostname"] }}/storage/local/status --output-format=json
       register: storage_status_result
       changed_when: false
       check_mode: false

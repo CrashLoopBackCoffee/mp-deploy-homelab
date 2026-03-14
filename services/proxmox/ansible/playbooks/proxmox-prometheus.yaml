@@ -13,7 +13,7 @@
 
     - name: Query LXC containers
       ansible.builtin.command:
-        pvesh get /nodes/{{ ansible_hostname }}/lxc --output-format=json
+        pvesh get /nodes/{{ ansible_facts["hostname"] }}/lxc --output-format=json
       register: get_lxc_result
       changed_when: false
       check_mode: false
