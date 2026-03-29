@@ -1,0 +1,16 @@
+- name: Scale down cpu frequency if no load
+  hosts: pve
+  gather_facts: false
+  tasks:
+    - name: Set scaling governor
+      ansible.builtin.copy:
+        dest: /etc/default/grub.d/powersave-governor.cfg
+        mode: '0644'
+        content: |
+          GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT cpufreq.default_governor=powersave"
+      notify: Update grub
+
+  handlers:
+    - name: Update grub
+      ansible.builtin.command: update-grub
+      changed_when: true
