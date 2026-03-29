@@ -1,5 +1,6 @@
 - import_playbook: proxmox-post-install.yaml  # noqa: name[play]
 - import_playbook: proxmox-locales.yaml  # noqa: name[play]
+- import_playbook: proxmox-cpufreq.yaml  # noqa: name[play]
 - import_playbook: proxmox-swap.yaml  # noqa: name[play]
 - import_playbook: proxmox-api-token.yaml  # noqa: name[play]
 - import_playbook: proxmox-grub-usb.yaml  # noqa: name[play]
