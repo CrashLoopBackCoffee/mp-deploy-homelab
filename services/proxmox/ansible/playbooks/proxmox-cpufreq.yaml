@@ -47,19 +47,22 @@
 
           [Service]
           Type=oneshot
-          ExecStart=/bin/sh -c 'for f in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do [ -e "$f" ] || continue; [ -w "$f" ] || continue; avail="${f%/*}/energy_performance_available_preferences"; if [ -r "$avail" ] && ! grep -qw balance_power "$avail"; then continue; fi; (echo balance_power > "$f") >/dev/null 2>&1 || true; done; exit 0'
+          ExecStart=/bin/sh -c '\
+            for f in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do \
+              [ -e "$f" ] || continue; \
+              [ -w "$f" ] || continue; \
+              avail="${f%/*}/energy_performance_available_preferences"; \
+              if [ -r "$avail" ] && ! grep -qw balance_power "$avail"; then \
+                continue; \
+              fi; \
+              (echo balance_power > "$f") >/dev/null 2>&1 || true; \
+            done; \
+            exit 0'
 
           [Install]
           WantedBy=multi-user.target
       notify:
-        - Reboot host
-      when: epp_sysfs_check.rc == 0
-
-    - name: Enable EPP service for next boot
-      ansible.builtin.systemd:
-        name: cpu-epp-balance-power.service
-        enabled: true
-        daemon_reload: true
+        - Reload, enable, and start EPP service
       when: epp_sysfs_check.rc == 0
 
     - name: Warn when EPP sysfs files are not available
@@ -74,6 +77,13 @@
     - name: Update grub
       ansible.builtin.command: update-grub
       changed_when: true
+
+    - name: Reload, enable, and start EPP service
+      ansible.builtin.systemd:
+        daemon_reload: true
+        name: cpu-epp-balance-power.service
+        enabled: true
+        state: started
 
     - name: Reboot host
       ansible.builtin.reboot:
