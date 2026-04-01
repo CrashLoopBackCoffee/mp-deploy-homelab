@@ -3,5 +3,4 @@
 set -x
 set -eu
 
-./scripts/run-ansible-checks.sh
-./scripts/run-python-checks.sh
+.venv/bin/prek run --all-files
