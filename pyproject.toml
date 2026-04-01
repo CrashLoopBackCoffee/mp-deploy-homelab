@@ -3,8 +3,9 @@ name = "homelab"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
-    "kubernetes",
     "ingress",
+    "kubernetes",
+    "observability",
     "paperless",
     "proxmox",
     "samba",
@@ -20,8 +21,9 @@ dev = [
 ]
 
 [tool.uv.sources]
-kubernetes = { workspace = true }
 ingress = { workspace = true }
+kubernetes = { workspace = true }
+observability = { workspace = true }
 paperless = { workspace = true }
 proxmox = { workspace = true }
 samba = { workspace = true }
