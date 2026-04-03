@@ -11,10 +11,10 @@ config:
       vlan-id: 10
       ipv4-address: 10.0.10.3/24
       cores: 2
-      memory_mb_min: 2048
-      memory_mb_max: 4096
-      root_disk_size_gb: 6
-      data_disk_size_gb: 16
+      memory-mb-min: 2048
+      memory-mb-max: 4096
+      root-disk-size-gb: 6
+      data-disk-size-gb: 16
       ssh-public-key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINkV2VImBNPnGv5kyC9ybGPhMipr0VhFe1n/Ks7Sm8k4 mpagel@k8s-prod
     smb:
       remote:
@@ -27,8 +27,8 @@ config:
           secure: AAABAIx5nm7039PZJxjcv4JJPHmTzCb989LlLHYOwgep/UrFGEmRJ3qXVCypQMJ8cU1yGczX6fyZFp+G9m8zaaU3sWE=
       shares:
         - name: write-all
-          remote_write: true
-          k8s_write: true
+          remote-write: true
+          k8s-write: true
         - name: write-k8s
-          remote_write: false
-          k8s_write: true
+          remote-write: false
+          k8s-write: true

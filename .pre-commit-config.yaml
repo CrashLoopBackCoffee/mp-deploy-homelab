@@ -1,0 +1,67 @@
+default_install_hook_types: [pre-commit, pre-push]
+default_stages: [pre-commit]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-toml
+        stages: [pre-commit]
+      - id: detect-aws-credentials
+        args: [--allow-missing-credentials]
+        stages: [pre-commit]
+      - id: detect-private-key
+        stages: [pre-commit]
+      - id: end-of-file-fixer
+        stages: [pre-commit]
+      - id: mixed-line-ending
+        stages: [pre-commit]
+      - id: pretty-format-json
+        args: [--autofix]
+        stages: [pre-commit]
+      - id: trailing-whitespace
+        stages: [pre-commit]
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: uv run pyright --warnings
+        language: system
+        stages: [pre-commit]
+        types: [python]
+        pass_filenames: false
+      - id: ruff-format
+        name: ruff-format
+        entry: uv run ruff format
+        language: system
+        stages: [pre-commit]
+        types: [python]
+        pass_filenames: false
+      - id: ruff-check
+        name: ruff-check
+        entry: uv run ruff check --fix
+        language: system
+        stages: [pre-commit]
+        types: [python]
+        pass_filenames: false
+      - id: yamllint
+        name: yamllint
+        entry: uv run yamllint --strict -c=.yamllint .
+        language: system
+        stages: [pre-commit]
+        types: [yaml]
+        pass_filenames: false
+      - id: ansible-lint
+        name: ansible-lint
+        entry: uv run --directory services/proxmox/ansible ansible-lint -v inventory playbooks roles
+        language: system
+        files: ^services/proxmox/ansible/
+        stages: [pre-push]
+        types: [yaml]
+        pass_filenames: false
+
+# - id: alloy-format
+#   name: alloy-format
+#   entry: ./scripts/alloy-fmt
+#   language: system
+#   files: \.alloy$

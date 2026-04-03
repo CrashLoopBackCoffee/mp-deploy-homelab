@@ -2,7 +2,7 @@
 
 import pydantic
 
-from utils.model import ConfigBaseModel, EnvVarRef
+from utils.model import ConfigBaseModel, EnvVarRef, get_pulumi_project
 
 
 class SmtpConfig(ConfigBaseModel):
@@ -44,3 +44,14 @@ class ComponentConfig(ConfigBaseModel):
     paperless: PaperlessConfig
     redis: RedisConfig
     rclone: RCloneConfig | None = None
+
+
+class StackConfig(ConfigBaseModel):
+    model_config = {
+        'alias_generator': lambda field_name: f'{get_pulumi_project(__file__)}:{field_name}'
+    }
+    config: ComponentConfig
+
+
+class PulumiConfigRoot(ConfigBaseModel):
+    config: StackConfig

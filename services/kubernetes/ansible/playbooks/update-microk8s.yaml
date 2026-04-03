@@ -1,4 +1,3 @@
----
 - name: Update MicroK8s to specified version
   hosts: master
   become: true

@@ -4,7 +4,7 @@ import ipaddress
 
 import pydantic
 
-from utils.model import CloudflareConfig, ConfigBaseModel, EnvVarRef
+from utils.model import CloudflareConfig, ConfigBaseModel, EnvVarRef, get_pulumi_project
 
 
 class ProxmoxConfig(ConfigBaseModel):
@@ -78,3 +78,14 @@ class ComponentConfig(ConfigBaseModel):
     unify: UnifyConfig = pydantic.Field(default_factory=UnifyConfig)
     csi_driver_smb: CsiDriverSmbConfig
     kube_state_metrics: KubeStateMetricsConfig
+
+
+class StackConfig(ConfigBaseModel):
+    model_config = {
+        'alias_generator': lambda field_name: f'{get_pulumi_project(__file__)}:{field_name}'
+    }
+    config: ComponentConfig
+
+
+class PulumiConfigRoot(ConfigBaseModel):
+    config: StackConfig

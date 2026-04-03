@@ -1,0 +1,12 @@
+extends: default
+ignore: |
+  .git
+  .venv
+  cloud-config.yaml
+
+rules:
+  document-start:
+    level: error
+    present: false
+  line-length: disable
+  truthy: disable

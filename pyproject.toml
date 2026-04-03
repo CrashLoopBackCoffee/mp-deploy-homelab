@@ -14,6 +14,7 @@ dependencies = [
 dev = [
     "ansible-lint>=24.12.2",
     "pip>=26.0.1",
+    "prek>=0.3.8",
     "pyright>=1.1.368,!=1.1.401",
     "ruff>=0.9.1",
 ]
@@ -130,3 +131,19 @@ exclude_lines = [
     "sys.platform == '",
     "sys.platform in",
 ]
+
+[tool.config-models.ingress]
+root = "services/ingress/pulumi"
+model = "ingress.model:PulumiConfigRoot"
+
+[tool.config-models.kubernetes]
+root = "services/kubernetes/pulumi"
+model = "kubernetes.model:PulumiConfigRoot"
+
+[tool.config-models.paperless]
+root = "services/paperless/pulumi"
+model = "paperless.model:PulumiConfigRoot"
+
+[tool.config-models.samba]
+root = "services/samba/pulumi"
+model = "samba.model:PulumiConfigRoot"
