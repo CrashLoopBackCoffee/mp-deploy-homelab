@@ -135,3 +135,15 @@ exclude_lines = [
 [tool.config-models.ingress]
 root = "services/ingress/pulumi"
 model = "ingress.model:PulumiConfigRoot"
+
+[tool.config-models.kubernetes]
+root = "services/kubernetes/pulumi"
+model = "kubernetes.model:PulumiConfigRoot"
+
+[tool.config-models.paperless]
+root = "services/paperless/pulumi"
+model = "paperless.model:PulumiConfigRoot"
+
+[tool.config-models.samba]
+root = "services/samba/pulumi"
+model = "samba.model:PulumiConfigRoot"

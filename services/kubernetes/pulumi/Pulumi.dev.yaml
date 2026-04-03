@@ -11,12 +11,12 @@ config:
           vmid: 1010
           ipv4-address: 10.0.10.100/24
           cores: 2
-          memory_mb_min: 2048
-          memory_mb_max: 4096
-          root_disk_size_gb: 64
-          data_disk_size_gb: 32
+          memory-mb-min: 2048
+          memory-mb-max: 4096
+          root-disk-size-gb: 64
+          data-disk-size-gb: 32
       ssh-public-key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIThrWKIoEj20S3DosaiKBRUGA89qe1xz9hch2+VhSGd mpagel@k8s-dev
-      vlan_id: 10
+      vlan-id: 10
       sub-domain: app-dev.mpagel.de
     metallb:
       # renovate: datasource=github-releases packageName=metallb/metallb versioning=semver
@@ -36,3 +36,6 @@ config:
     csi-driver-smb:
       # renovate: datasource=github-releases packageName=kubernetes-csi/csi-driver-smb versioning=loose
       version: v1.20.1
+    kube-state-metrics:
+      # renovate: datasource=helm registryUrl=https://prometheus-community.github.io/helm-charts packageName=kube-state-metrics versioning=helm
+      version: 7.2.2

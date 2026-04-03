@@ -4,7 +4,7 @@ import ipaddress
 
 import pydantic
 
-from utils.model import ConfigBaseModel, EnvVarRef
+from utils.model import ConfigBaseModel, EnvVarRef, PulumiSecret, get_pulumi_project
 
 
 class ProxmoxConfig(ConfigBaseModel):
@@ -53,7 +53,7 @@ class SmbShare(ConfigBaseModel):
 
 class SmbAccount(ConfigBaseModel):
     username: str
-    password: str
+    password: PulumiSecret
 
 
 class SmbConfig(ConfigBaseModel):
@@ -68,3 +68,14 @@ class ComponentConfig(ConfigBaseModel):
     vm: VirtualMachineConfig
     unify: UnifyConfig = pydantic.Field(default_factory=UnifyConfig)
     smb: SmbConfig
+
+
+class StackConfig(ConfigBaseModel):
+    model_config = {
+        'alias_generator': lambda field_name: f'{get_pulumi_project(__file__)}:{field_name}'
+    }
+    config: ComponentConfig
+
+
+class PulumiConfigRoot(ConfigBaseModel):
+    config: StackConfig
