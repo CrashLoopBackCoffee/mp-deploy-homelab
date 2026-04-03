@@ -146,6 +146,10 @@ model = "kubernetes.model:PulumiConfigRoot"
 root = "services/paperless/pulumi"
 model = "paperless.model:PulumiConfigRoot"
 
+[tool.config-models.observability]
+root = "services/observability/pulumi"
+model = "observability.model:PulumiConfigRoot"
+
 [tool.config-models.samba]
 root = "services/samba/pulumi"
 model = "samba.model:PulumiConfigRoot"
