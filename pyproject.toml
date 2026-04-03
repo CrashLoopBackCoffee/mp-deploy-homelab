@@ -131,3 +131,7 @@ exclude_lines = [
     "sys.platform == '",
     "sys.platform in",
 ]
+
+[tool.config-models.ingress]
+root = "services/ingress/pulumi"
+model = "ingress.model:PulumiConfigRoot"

@@ -1,6 +1,6 @@
 """Configuration model."""
 
-from utils.model import CloudflareConfig, ConfigBaseModel
+from utils.model import CloudflareConfig, ConfigBaseModel, get_pulumi_project
 
 
 class CloudflareTunnelIngressConfig(ConfigBaseModel):
@@ -17,3 +17,14 @@ class CloudflareDConfig(ConfigBaseModel):
 class ComponentConfig(ConfigBaseModel):
     cloudflare: CloudflareConfig
     cloudflared: CloudflareDConfig
+
+
+class StackConfig(ConfigBaseModel):
+    model_config = {
+        'alias_generator': lambda field_name: f'{get_pulumi_project(__file__)}:{field_name}'
+    }
+    config: ComponentConfig
+
+
+class PulumiConfigRoot(ConfigBaseModel):
+    config: StackConfig
