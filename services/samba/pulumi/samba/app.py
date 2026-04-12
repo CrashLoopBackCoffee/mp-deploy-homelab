@@ -36,7 +36,7 @@ def create_server(component_config: ComponentConfig, proxmox_provider: proxmoxve
 
     stack_name = p.get_stack()
 
-    cloud_config = proxmoxve.FileLegacy(
+    cloud_config = proxmoxve.storage.File(
         'cloud-config',
         node_name=component_config.proxmox.node_name,
         datastore_id='local',
@@ -59,11 +59,11 @@ def create_server(component_config: ComponentConfig, proxmox_provider: proxmoxve
 
     gateway_address = str(component_config.vm.ipv4_address.network.network_address + 1)
 
-    vlan_config: proxmoxve.VmLegacyNetworkDeviceArgsDict = (
+    vlan_config: proxmoxve.vm.VirtualMachineNetworkDeviceArgsDict = (
         {'vlan_id': int(component_config.vm.vlan_id)} if component_config.vm.vlan_id else {}
     )
 
-    vm = proxmoxve.VmLegacy(
+    vm = proxmoxve.vm.VirtualMachine(
         component_config.vm.name,
         name=component_config.vm.name,
         node_name=component_config.proxmox.node_name,
@@ -79,7 +79,7 @@ def create_server(component_config: ComponentConfig, proxmox_provider: proxmoxve
             'dedicated': component_config.vm.memory_mb_max,
             'floating': component_config.vm.memory_mb_min,
         },
-        cdrom={'file_id': 'none'},
+        cdrom={'file_id': None},  # pyright: ignore[reportArgumentType]
         disks=[
             {
                 'interface': 'virtio0',
