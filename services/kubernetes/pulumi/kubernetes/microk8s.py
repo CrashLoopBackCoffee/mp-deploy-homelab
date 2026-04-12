@@ -45,7 +45,7 @@ def create_microk8s(component_config: ComponentConfig, proxmox_provider: proxmox
 
     first_master_ipv4 = None
     for master_config in component_config.microk8s.master_nodes:
-        cloud_config = proxmoxve.storage.File(
+        cloud_config = proxmoxve.FileLegacy(
             f'cloud-config-master-{master_config.name}',
             node_name=component_config.proxmox.node_name,
             datastore_id='local',
@@ -69,13 +69,13 @@ def create_microk8s(component_config: ComponentConfig, proxmox_provider: proxmox
 
         gateway_address = str(master_config.ipv4_address.network.network_address + 1)
 
-        vlan_config: proxmoxve.vm.VirtualMachineNetworkDeviceArgsDict = (
+        vlan_config: proxmoxve.VmLegacyNetworkDeviceArgsDict = (
             {'vlan_id': int(component_config.microk8s.vlan_id)}
             if component_config.microk8s.vlan_id
             else {}
         )
 
-        master_vm = proxmoxve.vm.VirtualMachine(
+        master_vm = proxmoxve.VmLegacy(
             master_config.name,
             name=master_config.name,
             node_name=component_config.proxmox.node_name,
@@ -91,7 +91,7 @@ def create_microk8s(component_config: ComponentConfig, proxmox_provider: proxmox
                 'dedicated': master_config.memory_mb_max,
                 'floating': master_config.memory_mb_min,
             },
-            cdrom={'file_id': None},  # pyright: ignore[reportArgumentType]
+            cdrom={'file_id': 'none'},
             disks=[
                 {
                     'interface': 'virtio0',
