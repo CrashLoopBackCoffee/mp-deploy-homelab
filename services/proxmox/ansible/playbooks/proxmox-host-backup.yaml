@@ -7,11 +7,17 @@
     - name: Configure host-level backup if defined
       when: host_backup is defined
       block:
-        - name: Add cron envvar for host backup
+        - name: Add cron envvar for PBS access
           ansible.builtin.cron:
             env: true
             name: PBS_PASSWORD
             job: "{{ host_backup.password }}"
+
+        - name: Add cron envvar for PBS log level
+          ansible.builtin.cron:
+            env: true
+            name: PBS_LOG
+            job: warn
 
         - name: Add keyfile for encryption
           ansible.builtin.copy:
