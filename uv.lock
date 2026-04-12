@@ -581,7 +581,7 @@ requires-dist = [
     { name = "pulumi", specifier = ">=3.147.0" },
     { name = "pulumi-command", specifier = ">=1.0.1" },
     { name = "pulumi-kubernetes", specifier = ">=4.21.0" },
-    { name = "pulumi-proxmoxve", specifier = ">=6.18.1" },
+    { name = "pulumi-proxmoxve", specifier = ">=6.18.1,<8.0.0" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.10.1" },
     { name = "utils", editable = "services/utils" },
 ]
@@ -1208,7 +1208,7 @@ dependencies = [
 requires-dist = [
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "pulumi", specifier = ">=3.147.0" },
-    { name = "pulumi-proxmoxve", specifier = ">=6.18.1" },
+    { name = "pulumi-proxmoxve", specifier = ">=6.18.1,<8.0.0" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.10.1" },
     { name = "utils", editable = "services/utils" },
 ]

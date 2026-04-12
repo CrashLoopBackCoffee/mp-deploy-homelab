@@ -2,7 +2,7 @@ config:
   samba:config:
     proxmox:
       node-name: pve
-      api-endpoint: https://pve-01.mpagel.de:8006
+      api-endpoint: https://pve-02.mpagel.de:8006
       api-token:
         envvar: PROXMOX_API_TOKEN__PVE_01__PULUMI
     vm:
