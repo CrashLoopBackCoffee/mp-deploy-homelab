@@ -24,7 +24,7 @@ config:
       ipv4-start: 10.0.10.115
       ipv4-end: 10.0.10.120
     cert-manager:
-      # renovate: datasource=github-releases packageName=cert-manager/cert-manager versioning=semver
+      # renovate: datasource=helm registryUrl=https://charts.jetstack.io packageName=cert-manager versioning=helm
       version: v1.20.1
       acme-email: mike@mpagel.de
     traefik:
