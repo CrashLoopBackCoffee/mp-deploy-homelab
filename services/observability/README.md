@@ -82,9 +82,22 @@ Future scope:
 - Keep Loki, Mimir, and Alloy cluster-internal unless a concrete external use
   case appears.
 
+## Current Decisions
+
+- Namespace name: `observability`
+- Initial stack scope: one `observability` stack with `prod` config only
+- Deployment mode: monolithic where available
+- Grafana admin credentials: generated
+- Persistence: deferred until after the first working stack
+- Default persistence direction later: existing retained storage class
+- Cluster metrics and logs: collected by the same Alloy deployment
+- Tempo later: added to the same stack
+
 ## Delivery Plan
 
 ### Phase 1: Stack Skeleton
+
+- [x] Status: Completed
 
 - Create the Python package and Pulumi project structure.
 - Add:
@@ -98,6 +111,8 @@ Future scope:
 
 ### Phase 2: Shared Config Model
 
+- [ ] Status: Not started
+
 - Define a top-level `ComponentConfig`.
 - Add config sections for:
   - Grafana
@@ -109,12 +124,16 @@ Future scope:
 
 ### Phase 3: Namespace and Core Services
 
+- [ ] Status: Not started
+
 - Reference the `kubernetes` stack to obtain `kube-config`.
 - Create the `observability` namespace.
 - Deploy Loki and Mimir first so Grafana and Alloy have stable backends.
 - Keep storage ephemeral in this phase.
 
 ### Phase 4: Grafana
+
+- [ ] Status: Not started
 
 - Deploy Grafana.
 - Generate admin credentials and export them from the stack.
@@ -125,6 +144,8 @@ Future scope:
 - Export the resulting FQDN from the stack.
 
 ### Phase 5: Alloy Gateway
+
+- [ ] Status: Not started
 
 - Deploy Alloy as the central OTLP endpoint.
 - Configure pipelines for:
@@ -139,6 +160,8 @@ Future scope:
 
 ### Phase 6: Persistence
 
+- [ ] Status: Not started
+
 - Introduce PVC-backed storage only after the ephemeral stack works well.
 - Default to the existing retained storage class, but keep it configurable.
 - Add protection for critical PVC-backed resources in `prod` where appropriate.
@@ -146,33 +169,8 @@ Future scope:
 
 ### Phase 7: Hardening and Reuse
 
+- [ ] Status: Not started
+
 - Add health probes and conservative resource requests.
 - Consider extracting common helpers if the service repeats namespace or ingress
   patterns already used elsewhere.
-
-## Suggested First Implementation Order
-
-1. Namespace and config model
-2. Loki monolith without PVC
-3. Mimir monolith without PVC
-4. Grafana with Loki and Mimir datasources
-5. Grafana ingress
-6. Alloy as central OTLP gateway
-7. Optional persistence phase after the stack is easy to iterate on
-
-## Current Decisions
-
-- Namespace name: `observability`
-- Initial stack scope: one `observability` stack with `prod` config only
-- Deployment mode: monolithic where available
-- Grafana admin credentials: generated
-- Persistence: deferred until after the first working stack
-- Default persistence direction later: existing retained storage class
-- Cluster metrics and logs: collected by the same Alloy deployment
-- Tempo later: added to the same stack
-
-## Recommended Next Step
-
-Implement the service as one new Pulumi stack under `services/observability`
-with internal Grafana ingress and no PVCs at first. Once that works, wire Alloy
-into the app stacks and then add persistence in a separate follow-up step.
