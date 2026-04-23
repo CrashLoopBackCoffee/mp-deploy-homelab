@@ -1,2 +1,16 @@
 config:
-  observability:config: {}
+  observability:config:
+    grafana:
+      # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=grafana versioning=helm
+      version: 9.5.0
+    loki:
+      # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=loki versioning=helm
+      version: 6.31.0
+    mimir:
+      # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=mimir-distributed versioning=helm
+      version: 5.8.0
+    alloy:
+      # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=alloy versioning=helm
+      version: 1.2.1
+    ingress:
+      hostname: grafana.app.mpagel.de
