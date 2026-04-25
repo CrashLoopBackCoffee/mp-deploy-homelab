@@ -1,0 +1,6 @@
+name: observability
+description: Observability platform deployment
+runtime:
+  name: python
+  options:
+    virtualenv: ../../../.venv
