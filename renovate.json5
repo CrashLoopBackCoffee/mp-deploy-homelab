@@ -5,7 +5,7 @@
         ':dependencyDashboard',
     ],
     mode: 'full',
-    minimumReleaseAge: '7 days',
+    minimumReleaseAge: '3 days',
     internalChecksFilter: 'strict',
     lockFileMaintenance: {
         enabled: true,
@@ -36,11 +36,11 @@
         {
             matchPackageNames: ['canonical/microk8s'],
             separateMultipleMinor: true,
-            minimumReleaseAge: '21 days',
+            minimumReleaseAge: '7 days',
         },
         {
             matchUpdateTypes: ['major'],
-            minimumReleaseAge: '10 days',
+            minimumReleaseAge: '5 days',
         },
     ],
     vulnerabilityAlerts: {
