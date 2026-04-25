@@ -20,7 +20,7 @@ config:
       version: 8.6.2
     rclone:
       # renovate: datasource=docker packageName=rclone/rclone versioning=docker
-      version: 1.73.4
+      version: 1.73.5
       rclone-conf-b64:
         envvar: RCLONE_CONF_B64__ONEDRIVE__TOM
       destinations:
