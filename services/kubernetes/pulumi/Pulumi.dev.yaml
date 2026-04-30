@@ -38,4 +38,4 @@ config:
       version: v1.20.1
     kube-state-metrics:
       # renovate: datasource=helm registryUrl=https://prometheus-community.github.io/helm-charts packageName=kube-state-metrics versioning=helm
-      version: 7.2.2
+      version: 7.3.0
