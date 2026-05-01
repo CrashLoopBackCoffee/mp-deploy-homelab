@@ -48,12 +48,10 @@ def ensure_metallb(component_config: ComponentConfig, k8s_provider: k8s.Provider
         },
         spec={
             'addresses': [
-                '-'.join(
-                    (
-                        str(component_config.metallb.ipv4_start),
-                        str(component_config.metallb.ipv4_end),
-                    )
-                )
+                '-'.join((
+                    str(component_config.metallb.ipv4_start),
+                    str(component_config.metallb.ipv4_end),
+                ))
             ],
         },
         opts=p.ResourceOptions.merge(k8s_opts, p.ResourceOptions(depends_on=[metallb])),

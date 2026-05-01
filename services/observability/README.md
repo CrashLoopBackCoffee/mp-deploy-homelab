@@ -124,7 +124,7 @@ Future scope:
 
 ### Phase 3: Namespace and Core Services
 
-- [ ] Status: Not started
+- [x] Status: Completed
 
 - Reference the `kubernetes` stack to obtain `kube-config`.
 - Create the `observability` namespace.

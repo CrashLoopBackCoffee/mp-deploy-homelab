@@ -2,4 +2,9 @@
 name = "observability"
 version = "0.1.0"
 requires-python = ">=3.14"
-dependencies = ["pulumi>=3.147.0", "pydantic>=2.10.1", "utils"]
+dependencies = [
+    "pulumi>=3.147.0",
+    "pydantic>=2.10.1",
+    "pulumi-kubernetes>=4.21.0",
+    "utils",
+]

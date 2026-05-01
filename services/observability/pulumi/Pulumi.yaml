@@ -1,5 +1,7 @@
 name: observability
 description: Observability platform deployment
+pulumi:disable-default-providers:
+  - kubernetes
 runtime:
   name: python
   options:

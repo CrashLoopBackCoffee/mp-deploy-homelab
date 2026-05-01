@@ -70,6 +70,7 @@ lines-between-types = 1
 
 [tool.ruff.format]
 quote-style = "single"
+preview = true  # support markdown formatting
 
 [tool.pyright]
 useLibraryCodeForTypes = true

@@ -643,6 +643,7 @@ version = "0.1.0"
 source = { editable = "services/observability" }
 dependencies = [
     { name = "pulumi" },
+    { name = "pulumi-kubernetes" },
     { name = "pydantic" },
     { name = "utils" },
 ]
@@ -650,6 +651,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "pulumi", specifier = ">=3.147.0" },
+    { name = "pulumi-kubernetes", specifier = ">=4.21.0" },
     { name = "pydantic", specifier = ">=2.10.1" },
     { name = "utils", editable = "services/utils" },
 ]
