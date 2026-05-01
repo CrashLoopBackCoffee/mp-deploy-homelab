@@ -145,7 +145,7 @@ Future scope:
 
 ### Phase 5: Alloy Gateway
 
-- [ ] Status: Not started
+- [x] Status: Completed
 
 - Deploy Alloy as the central OTLP endpoint.
 - Configure pipelines for:

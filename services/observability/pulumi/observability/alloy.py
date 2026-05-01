@@ -1,0 +1,122 @@
+"""Grafana Alloy OpenTelemetry gateway deployment."""
+
+import pathlib
+
+import jinja2
+import pulumi as p
+import pulumi_kubernetes as k8s
+
+from observability.constants import GRAFANA_CHART_URL
+from observability.gateway import service_http_url
+from observability.model import ComponentConfig
+
+ALLOY_SERVICE_NAME = 'alloy'
+ALLOY_OTLP_GRPC_PORT = 4317
+ALLOY_OTLP_HTTP_PORT = 4318
+
+
+def create_alloy(
+    component_config: ComponentConfig,
+    *,
+    loki_gateway: k8s.core.v1.Service,
+    mimir_gateway: k8s.core.v1.Service,
+    k8s_opts: p.ResourceOptions,
+) -> k8s.helm.v3.Release:
+    alloy = k8s.helm.v3.Release(
+        'alloy',
+        chart='alloy',
+        version=component_config.alloy.version,
+        repository_opts={'repo': GRAFANA_CHART_URL},
+        values={
+            'controller': {
+                'type': 'deployment',
+                'replicas': 1,
+            },
+            'alloy': {
+                'configMap': {
+                    'content': create_alloy_config(
+                        loki_gateway=loki_gateway,
+                        mimir_gateway=mimir_gateway,
+                    ),
+                },
+                'extraPorts': [
+                    {
+                        'name': 'otlp-grpc',
+                        'port': ALLOY_OTLP_GRPC_PORT,
+                        'targetPort': ALLOY_OTLP_GRPC_PORT,
+                        'protocol': 'TCP',
+                    },
+                    {
+                        'name': 'otlp-http',
+                        'port': ALLOY_OTLP_HTTP_PORT,
+                        'targetPort': ALLOY_OTLP_HTTP_PORT,
+                        'protocol': 'TCP',
+                    },
+                ],
+            },
+        },
+        opts=k8s_opts,
+    )
+
+    create_alloy_gateway_service(alloy, k8s_opts)
+    export_alloy_endpoints()
+
+    return alloy
+
+
+def create_alloy_config(
+    *,
+    loki_gateway: k8s.core.v1.Service,
+    mimir_gateway: k8s.core.v1.Service,
+) -> p.Output[str]:
+    return p.Output.all(
+        mimir_remote_write_url=service_http_url(mimir_gateway, '/api/v1/push'),
+        loki_push_url=service_http_url(loki_gateway, '/loki/api/v1/push'),
+        otlp_grpc_port=ALLOY_OTLP_GRPC_PORT,
+        otlp_http_port=ALLOY_OTLP_HTTP_PORT,
+    ).apply(
+        lambda values: jinja2.Template(
+            pathlib.Path('assets/alloy/config.alloy.j2').read_text(),
+            undefined=jinja2.StrictUndefined,
+        ).render(values)
+    )
+
+
+def create_alloy_gateway_service(
+    alloy: k8s.helm.v3.Release,
+    k8s_opts: p.ResourceOptions,
+) -> None:
+    k8s.core.v1.Service(
+        ALLOY_SERVICE_NAME,
+        metadata={'name': ALLOY_SERVICE_NAME},
+        spec={
+            'selector': {
+                'app.kubernetes.io/instance': alloy.status.name,
+                'app.kubernetes.io/name': 'alloy',
+            },
+            'ports': [
+                {
+                    'name': 'otlp-grpc',
+                    'port': ALLOY_OTLP_GRPC_PORT,
+                    'target_port': 'otlp-grpc',
+                },
+                {
+                    'name': 'otlp-http',
+                    'port': ALLOY_OTLP_HTTP_PORT,
+                    'target_port': 'otlp-http',
+                },
+            ],
+        },
+        opts=k8s_opts,
+    )
+
+
+def export_alloy_endpoints() -> None:
+    p.export(
+        'alloy-otlp-grpc-endpoint',
+        f'{ALLOY_SERVICE_NAME}.observability.svc.cluster.local:{ALLOY_OTLP_GRPC_PORT}',
+    )
+    p.export(
+        'alloy-otlp-http-endpoint',
+        f'http://{ALLOY_SERVICE_NAME}.observability.svc.cluster.local:{ALLOY_OTLP_HTTP_PORT}',
+    )

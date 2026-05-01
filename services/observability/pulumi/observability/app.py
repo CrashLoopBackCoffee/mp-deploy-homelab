@@ -3,6 +3,8 @@
 import pulumi as p
 import pulumi_kubernetes as k8s
 
+from observability.alloy import create_alloy
+from observability.gateway import create_loki_gateway_service, create_mimir_gateway_service
 from observability.grafana import create_grafana
 from observability.loki import create_loki
 from observability.mimir import create_mimir
@@ -28,7 +30,20 @@ def create_observability(
 
     loki = create_loki(component_config, k8s_opts=k8s_opts)
     mimir = create_mimir(component_config, k8s_opts=k8s_opts)
-    create_grafana(component_config, loki=loki, mimir=mimir, k8s_opts=k8s_opts)
+    loki_gateway = create_loki_gateway_service(loki, k8s_opts)
+    mimir_gateway = create_mimir_gateway_service(mimir, k8s_opts)
+    create_grafana(
+        component_config,
+        loki_gateway=loki_gateway,
+        mimir_gateway=mimir_gateway,
+        k8s_opts=k8s_opts,
+    )
+    create_alloy(
+        component_config,
+        loki_gateway=loki_gateway,
+        mimir_gateway=mimir_gateway,
+        k8s_opts=k8s_opts,
+    )
 
-    p.export('phase', 'phase-4-grafana')
+    p.export('phase', 'phase-5-alloy-gateway')
     p.export('namespace', ns.metadata['name'])

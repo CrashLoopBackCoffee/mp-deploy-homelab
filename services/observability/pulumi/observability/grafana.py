@@ -5,14 +5,15 @@ import pulumi_kubernetes as k8s
 import pulumi_random as random
 
 from observability.constants import GRAFANA_CHART_URL
+from observability.gateway import service_http_url
 from observability.model import ComponentConfig
 
 
 def create_grafana(
     component_config: ComponentConfig,
     *,
-    loki: k8s.helm.v3.Release,
-    mimir: k8s.helm.v3.Release,
+    loki_gateway: k8s.core.v1.Service,
+    mimir_gateway: k8s.core.v1.Service,
     k8s_opts: p.ResourceOptions,
 ) -> k8s.helm.v3.Release:
     admin_username = 'admin'
@@ -21,9 +22,6 @@ def create_grafana(
         length=64,
         special=False,
     ).result
-
-    create_loki_gateway_service(loki, k8s_opts)
-    create_mimir_gateway_service(mimir, k8s_opts)
 
     grafana = k8s.helm.v3.Release(
         'grafana',
@@ -43,7 +41,7 @@ def create_grafana(
                             'name': 'Mimir',
                             'type': 'prometheus',
                             'access': 'proxy',
-                            'url': 'http://mimir.observability.svc.cluster.local/prometheus',
+                            'url': service_http_url(mimir_gateway, '/prometheus'),
                             'isDefault': True,
                             'jsonData': {
                                 'httpMethod': 'POST',
@@ -53,7 +51,7 @@ def create_grafana(
                             'name': 'Loki',
                             'type': 'loki',
                             'access': 'proxy',
-                            'url': 'http://loki-gateway.observability.svc.cluster.local',
+                            'url': service_http_url(loki_gateway),
                             'isDefault': False,
                         },
                     ],
@@ -102,53 +100,3 @@ def create_grafana(
     p.export('grafana-admin-password', admin_password)
 
     return grafana
-
-
-def create_loki_gateway_service(
-    loki: k8s.helm.v3.Release,
-    k8s_opts: p.ResourceOptions,
-) -> None:
-    k8s.core.v1.Service(
-        'loki-gateway',
-        metadata={'name': 'loki-gateway'},
-        spec={
-            'selector': {
-                'app.kubernetes.io/component': 'gateway',
-                'app.kubernetes.io/instance': loki.status.name,
-                'app.kubernetes.io/name': 'loki',
-            },
-            'ports': [
-                {
-                    'name': 'http',
-                    'port': 80,
-                    'target_port': 'http-metrics',
-                }
-            ],
-        },
-        opts=k8s_opts,
-    )
-
-
-def create_mimir_gateway_service(
-    mimir: k8s.helm.v3.Release,
-    k8s_opts: p.ResourceOptions,
-) -> None:
-    k8s.core.v1.Service(
-        'mimir',
-        metadata={'name': 'mimir'},
-        spec={
-            'selector': {
-                'app.kubernetes.io/component': 'nginx',
-                'app.kubernetes.io/instance': mimir.status.name,
-                'app.kubernetes.io/name': 'mimir',
-            },
-            'ports': [
-                {
-                    'name': 'http',
-                    'port': 80,
-                    'target_port': 'http-metric',
-                }
-            ],
-        },
-        opts=k8s_opts,
-    )
