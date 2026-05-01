@@ -581,7 +581,7 @@ requires-dist = [
     { name = "pulumi", specifier = ">=3.147.0" },
     { name = "pulumi-command", specifier = ">=1.0.1" },
     { name = "pulumi-kubernetes", specifier = ">=4.21.0" },
-    { name = "pulumi-proxmoxve", specifier = ">=6.18.1,<8.0.0" },
+    { name = "pulumi-proxmoxve", specifier = ">=8.1.0,<8.2.0" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.10.1" },
     { name = "utils", editable = "services/utils" },
 ]
@@ -932,16 +932,16 @@ wheels = [
 
 [[package]]
 name = "pulumi-proxmoxve"
-version = "7.13.0"
+version = "8.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "parver" },
     { name = "pulumi" },
     { name = "semver" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1f/1b/57fe8b147cc69f67960a0f8bd8269c108bd51d6681b395ae0d9a277728bf/pulumi_proxmoxve-7.13.0.tar.gz", hash = "sha256:e6316512856d61342a548b9f6a35ae8d6788752f4ccc120abd01a8841fbc0126", size = 263443, upload-time = "2026-02-10T16:47:32.681Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4d/03/29c5aa8409aa3cc6d5653ffa5d15ea1723a37112f67786e5bbf3e071f808/pulumi_proxmoxve-8.1.0.tar.gz", hash = "sha256:2627dad8d76777fdb26fcdb45cda19f11fd8eaf623592300257f58dc61a531ab", size = 371217, upload-time = "2026-04-26T17:16:04.535Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/81/33/3b08ba3c0d8979efe5594728ba186f95218481dc2dc23854dee4dbb23acd/pulumi_proxmoxve-7.13.0-py3-none-any.whl", hash = "sha256:be17c8add3bd2f0e31ce5a404758faba839572169bf6d727afffa9814f5f8eac", size = 404939, upload-time = "2026-02-10T16:47:31.305Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/59/3ea922432b5f3421e5843b5b9e36a6dd3880279c48b7d4eb24b24196aa50/pulumi_proxmoxve-8.1.0-py3-none-any.whl", hash = "sha256:2413aee64254b8a234a50a0b95afe46dac65f99ac96a5daa0c77f96418ef1eb0", size = 680644, upload-time = "2026-04-26T17:16:02.323Z" },
 ]
 
 [[package]]
@@ -1210,7 +1210,7 @@ dependencies = [
 requires-dist = [
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "pulumi", specifier = ">=3.147.0" },
-    { name = "pulumi-proxmoxve", specifier = ">=6.18.1,<8.0.0" },
+    { name = "pulumi-proxmoxve", specifier = ">=8.1.0,<8.2.0" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.10.1" },
     { name = "utils", editable = "services/utils" },
 ]
