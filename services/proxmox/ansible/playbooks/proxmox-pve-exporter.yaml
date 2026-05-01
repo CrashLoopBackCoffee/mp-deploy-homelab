@@ -21,16 +21,16 @@
         pve_exporter_users: >-
           {{ query_users_result.stdout
           | from_json
-          | selectattr('userid', 'equalto', prometheus.pve_exporter.username ~ '@pve')
+          | selectattr('userid', 'equalto', pve_exporter.username ~ '@pve')
           | list }}
 
     - name: Create pve-exporter account
       ansible.builtin.shell:
-        pveum user add {{ prometheus.pve_exporter.username }}@pve
-          --password={{ prometheus.pve_exporter.password }}
+        pveum user add {{ pve_exporter.username }}@pve
+          --password={{ pve_exporter.password }}
           --comment "Prometheus exporter service account." &&
-        pveum acl modify / --users {{ prometheus.pve_exporter.username }}@pve --roles PVEAuditor &&
-        useradd -s /bin/false {{ prometheus.pve_exporter.username }}
+        pveum acl modify / --users {{ pve_exporter.username }}@pve --roles PVEAuditor &&
+        useradd -s /bin/false {{ pve_exporter.username }}
       changed_when: true
       when: pve_exporter_users | length == 0
 
@@ -50,7 +50,7 @@
         path: "{{ pve_exporter_yml | dirname }}"
         state: directory
         owner: root
-        group: "{{ prometheus.pve_exporter.username }}"
+        group: "{{ pve_exporter.username }}"
         mode: '0750'
 
     - name: Generate pve-exporter config file
@@ -58,7 +58,7 @@
         src: prometheus-pve-exporter.yml.j2
         dest: "{{ pve_exporter_yml }}"
         owner: root
-        group: "{{ prometheus.pve_exporter.username }}"
+        group: "{{ pve_exporter.username }}"
         mode: '0640'
 
     - name: Generate pve-exporter service file

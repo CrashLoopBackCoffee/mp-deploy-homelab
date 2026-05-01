@@ -10,5 +10,3 @@
 - import_playbook: proxmox-local-snippets.yaml  # noqa: name[play]
 # - import_playbook: proxmox-node-exporter.yaml  # noqa: name[play]
 # - import_playbook: proxmox-pve-exporter.yaml  # noqa: name[play]
-# keep this last to minimize effect of contained check_mode failure:
-# - import_playbook: proxmox-prometheus.yaml  # noqa: name[play]

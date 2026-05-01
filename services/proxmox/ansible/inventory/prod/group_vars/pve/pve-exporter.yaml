@@ -1,0 +1,5 @@
+pve_exporter:
+  username: pve-exporter
+  password:
+    "{{ lookup('password', '.credentials/{{ inventory_hostname }}/pve-exporter
+    chars=ascii_letters,digits,hexdigits length=32') }}"
