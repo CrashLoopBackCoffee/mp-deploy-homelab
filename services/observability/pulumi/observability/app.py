@@ -1,8 +1,9 @@
-"""Phase 3 namespace and core services for the observability stack."""
+"""Observability stack deployment."""
 
 import pulumi as p
 import pulumi_kubernetes as k8s
 
+from observability.grafana import create_grafana
 from observability.loki import create_loki
 from observability.mimir import create_mimir
 from observability.model import ComponentConfig
@@ -25,8 +26,9 @@ def create_observability(
     )
     k8s_opts = p.ResourceOptions(provider=namespaced_k8s_provider)
 
-    create_loki(component_config, k8s_opts=k8s_opts)
-    create_mimir(component_config, k8s_opts=k8s_opts)
+    loki = create_loki(component_config, k8s_opts=k8s_opts)
+    mimir = create_mimir(component_config, k8s_opts=k8s_opts)
+    create_grafana(component_config, loki=loki, mimir=mimir, k8s_opts=k8s_opts)
 
-    p.export('phase', 'phase-3-namespace-and-core-services')
+    p.export('phase', 'phase-4-grafana')
     p.export('namespace', ns.metadata['name'])

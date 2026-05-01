@@ -2,7 +2,7 @@ config:
   observability:config:
     grafana:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=grafana versioning=helm
-      version: 9.5.0
+      version: 10.1.5
     loki:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=loki versioning=helm
       version: 6.31.0

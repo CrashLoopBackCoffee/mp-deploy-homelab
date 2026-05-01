@@ -133,7 +133,7 @@ Future scope:
 
 ### Phase 4: Grafana
 
-- [ ] Status: Not started
+- [x] Status: Completed
 
 - Deploy Grafana.
 - Generate admin credentials and export them from the stack.
