@@ -2,14 +2,14 @@ config:
   paperless:config:
     paperless:
       # renovate: datasource=github-releases packageName=paperless-ngx/paperless-ngx versioning=semver
-      version: 2.20.13
+      version: 2.20.15
       data-size-gb: 16
       media-size-gb: 16
       consume-size-mb: 512
       export-size-gb: 4
       exporter-schedule: "45 6-23 * * *"
       # renovate: datasource=docker registryUrl=https://registry.k8s.io packageName=kubectl versioning=docker
-      exporter-kubectl-version: v1.35.3
+      exporter-kubectl-version: v1.35.4
       external-hostname: paperless-juno.mpagel.de
       smtp:
         email: paperless-juno@mpagel.de
@@ -20,7 +20,7 @@ config:
       version: 8.6.2
     rclone:
       # renovate: datasource=docker packageName=rclone/rclone versioning=docker
-      version: 1.73.3
+      version: 1.73.5
       rclone-conf-b64:
         envvar: RCLONE_CONF_B64__ONEDRIVE__TOM
       destinations:

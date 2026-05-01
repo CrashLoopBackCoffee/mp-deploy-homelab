@@ -5,6 +5,8 @@
         ':dependencyDashboard',
     ],
     mode: 'full',
+    minimumReleaseAge: '3 days',
+    internalChecksFilter: 'strict',
     lockFileMaintenance: {
         enabled: true,
     },
@@ -12,7 +14,7 @@
         {
             customType: 'regex',
             managerFilePatterns: [
-                '/^Dockerfile$/',
+                '/(^|/)Dockerfile$/',
             ],
             matchStrings: [
                 '# renovate: datasource=(?<datasource>[a-z-]+?)(?: depName=(?<depName>.+?))? packageName=(?<packageName>.+?)(?: versioning=(?<versioning>[a-z-]+?))?\\sARG \\S+?=(?<currentValue>\\S+)',
@@ -22,7 +24,7 @@
         {
             customType: 'regex',
             managerFilePatterns: [
-                '/.*.(yaml|yml)$/',
+                '/\\.ya?ml$/',
             ],
             matchStrings: [
                 '# renovate: datasource=(?<datasource>[a-z-]+?)(?: depName=(?<depName>.+?))?(?: registryUrl=(?<registryUrl>.+?))? packageName=(?<packageName>.+?)(?: versioning=(?<versioning>[a-z0-9-]+?))?\\s+[a-zA-Z_-]+:\\s+"?(?<currentValue>[^"\\s]+)"?',
@@ -34,8 +36,18 @@
         {
             matchPackageNames: ['canonical/microk8s'],
             separateMultipleMinor: true,
+            minimumReleaseAge: '7 days',
+        },
+        {
+            matchUpdateTypes: ['major'],
+            minimumReleaseAge: '5 days',
         },
     ],
+    vulnerabilityAlerts: {
+        enabled: true,
+        dependencyDashboardApproval: false,
+        labels: ['security'],
+    },
     prHourlyLimit: 10,
     rangeStrategy: 'replace',
 }

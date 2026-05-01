@@ -2,7 +2,7 @@ config:
   kubernetes:config:
     proxmox:
       node-name: pve
-      api-endpoint: https://pve-01.mpagel.de:8006
+      api-endpoint: https://pve-02.mpagel.de:8006
       api-token:
         envvar: PROXMOX_API_TOKEN__PVE_01__PULUMI
     microk8s:
@@ -24,12 +24,12 @@ config:
       ipv4-start: 10.0.10.115
       ipv4-end: 10.0.10.120
     cert-manager:
-      # renovate: datasource=github-releases packageName=cert-manager/cert-manager versioning=semver
-      version: v1.20.1
+      # renovate: datasource=helm registryUrl=https://charts.jetstack.io packageName=cert-manager versioning=helm
+      version: v1.20.2
       acme-email: mike@mpagel.de
     traefik:
       # renovate: datasource=github-releases packageName=traefik/traefik-helm-chart versioning=semver
-      version: v39.0.7
+      version: v39.0.8
     cloudflare:
       api-token:
         envvar: CLOUDFLARE_TOKEN
@@ -38,4 +38,4 @@ config:
       version: v1.20.1
     kube-state-metrics:
       # renovate: datasource=helm registryUrl=https://prometheus-community.github.io/helm-charts packageName=kube-state-metrics versioning=helm
-      version: 7.2.2
+      version: 7.3.0
