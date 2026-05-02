@@ -28,6 +28,166 @@ prometheus.remote_write "mimir" {
   }
 }
 
+discovery.kubernetes "nodes" {
+  role = "node"
+}
+
+discovery.relabel "kubelet_metrics" {
+  targets = discovery.kubernetes.nodes.targets
+
+  rule {
+    action        = "replace"
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "node"
+  }
+
+  rule {
+    action        = "replace"
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "instance"
+  }
+
+  rule {
+    action       = "replace"
+    replacement  = "kubelet"
+    target_label = "job"
+  }
+
+  rule {
+    action       = "replace"
+    replacement  = "kubernetes.default.svc:443"
+    target_label = "__address__"
+  }
+
+  rule {
+    action        = "replace"
+    replacement   = "/api/v1/nodes/${1}/proxy/metrics"
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "__metrics_path__"
+  }
+}
+
+discovery.relabel "kubelet_resource_metrics" {
+  targets = discovery.kubernetes.nodes.targets
+
+  rule {
+    action        = "replace"
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "node"
+  }
+
+  rule {
+    action        = "replace"
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "instance"
+  }
+
+  rule {
+    action       = "replace"
+    replacement  = "kubelet-resource"
+    target_label = "job"
+  }
+
+  rule {
+    action       = "replace"
+    replacement  = "kubernetes.default.svc:443"
+    target_label = "__address__"
+  }
+
+  rule {
+    action        = "replace"
+    replacement   = "/api/v1/nodes/${1}/proxy/metrics/resource"
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "__metrics_path__"
+  }
+}
+
+discovery.relabel "kubelet_cadvisor_metrics" {
+  targets = discovery.kubernetes.nodes.targets
+
+  rule {
+    action        = "replace"
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "node"
+  }
+
+  rule {
+    action        = "replace"
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "instance"
+  }
+
+  rule {
+    action       = "replace"
+    replacement  = "cadvisor"
+    target_label = "job"
+  }
+
+  rule {
+    action       = "replace"
+    replacement  = "kubernetes.default.svc:443"
+    target_label = "__address__"
+  }
+
+  rule {
+    action        = "replace"
+    replacement   = "/api/v1/nodes/${1}/proxy/metrics/cadvisor"
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "__metrics_path__"
+  }
+}
+
+prometheus.relabel "kubelet_cadvisor_metrics" {
+  forward_to = [prometheus.remote_write.mimir.receiver]
+
+  rule {
+    action = "labeldrop"
+    regex  = "^(id|name)$"
+  }
+}
+
+prometheus.scrape "kubelet_metrics" {
+  targets             = discovery.relabel.kubelet_metrics.output
+  forward_to          = [prometheus.remote_write.mimir.receiver]
+  scheme              = "https"
+  scrape_interval     = "30s"
+  scrape_timeout      = "10s"
+  bearer_token_file   = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+  tls_config {
+    ca_file     = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    server_name = "kubernetes.default.svc"
+  }
+}
+
+prometheus.scrape "kubelet_resource_metrics" {
+  targets             = discovery.relabel.kubelet_resource_metrics.output
+  forward_to          = [prometheus.remote_write.mimir.receiver]
+  scheme              = "https"
+  scrape_interval     = "30s"
+  scrape_timeout      = "10s"
+  bearer_token_file   = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+  tls_config {
+    ca_file     = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    server_name = "kubernetes.default.svc"
+  }
+}
+
+prometheus.scrape "kubelet_cadvisor_metrics" {
+  targets             = discovery.relabel.kubelet_cadvisor_metrics.output
+  forward_to          = [prometheus.relabel.kubelet_cadvisor_metrics.receiver]
+  scheme              = "https"
+  scrape_interval     = "30s"
+  scrape_timeout      = "10s"
+  bearer_token_file   = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+  tls_config {
+    ca_file     = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    server_name = "kubernetes.default.svc"
+  }
+}
+
 otelcol.exporter.loki "loki" {
   forward_to = [loki.write.loki.receiver]
 }

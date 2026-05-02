@@ -38,6 +38,11 @@ def create_mimir(
                             'dir': '/data/ingester-tsdb',
                         },
                     },
+                    'ingester': {
+                        'ring': {
+                            'replication_factor': 1,
+                        },
+                    },
                     'compactor': {
                         'data_dir': '/data/compactor',
                     },
@@ -57,6 +62,11 @@ def create_mimir(
                         'backend': 'filesystem',
                         'filesystem': {
                             'dir': '/data/ruler-storage',
+                        },
+                    },
+                    'store_gateway': {
+                        'sharding_ring': {
+                            'replication_factor': 1,
                         },
                     },
                 },
