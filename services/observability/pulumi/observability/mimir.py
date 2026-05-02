@@ -12,6 +12,8 @@ def create_mimir(
     *,
     k8s_opts: p.ResourceOptions,
 ) -> k8s.helm.v3.Release:
+    retention_period = f'{component_config.mimir.retention_days}d'
+
     return k8s.helm.v3.Release(
         'mimir',
         chart='mimir-distributed',
@@ -42,6 +44,9 @@ def create_mimir(
                         'ring': {
                             'replication_factor': 1,
                         },
+                    },
+                    'limits': {
+                        'compactor_blocks_retention_period': retention_period,
                     },
                     'compactor': {
                         'data_dir': '/data/compactor',

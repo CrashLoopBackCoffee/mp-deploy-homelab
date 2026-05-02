@@ -11,10 +11,20 @@ class GrafanaConfig(ConfigBaseModel):
 
 class LokiConfig(ConfigBaseModel):
     version: str = pydantic.Field(description='Loki Helm chart version.')
+    retention_days: int = pydantic.Field(
+        default=30,
+        ge=1,
+        description='Loki log retention period in days.',
+    )
 
 
 class MimirConfig(ConfigBaseModel):
     version: str = pydantic.Field(description='Mimir Helm chart version.')
+    retention_days: int = pydantic.Field(
+        default=30,
+        ge=1,
+        description='Mimir metrics retention period in days.',
+    )
 
 
 class AlloyConfig(ConfigBaseModel):

@@ -12,6 +12,8 @@ def create_loki(
     *,
     k8s_opts: p.ResourceOptions,
 ) -> k8s.helm.v3.Release:
+    retention_period = f'{component_config.loki.retention_days}d'
+
     return k8s.helm.v3.Release(
         'loki',
         chart='loki',
@@ -23,6 +25,13 @@ def create_loki(
                 'auth_enabled': False,
                 'commonConfig': {
                     'replication_factor': 1,
+                },
+                'compactor': {
+                    'delete_request_store': 'filesystem',
+                    'retention_enabled': True,
+                },
+                'limits_config': {
+                    'retention_period': retention_period,
                 },
                 'storage': {
                     'type': 'filesystem',
