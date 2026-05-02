@@ -109,9 +109,9 @@ sources that can be added incrementally.
 | Pod and container logs | Yes | Yes | Alloy discovers pods with `discovery.kubernetes`, relabels namespace, pod, container, node, and app labels, tails logs with `loki.source.kubernetes`, and drops backlog entries older than Loki accepts. |
 | Node and pod CPU/memory live metrics | Yes | Not intended | `metrics-server` is installed and `kubectl top nodes/pods` works, but it is not intended as the observability ingestion source; use kubelet/cAdvisor scraping instead. |
 | Kubelet and cAdvisor metrics | Yes | Yes | Alloy discovers nodes and scrapes kubelet `/metrics`, kubelet `/metrics/resource`, and cAdvisor `/metrics/cadvisor` through the API server node proxy. |
-| Kubernetes API server metrics | Yes | No | The API server `/metrics` endpoint is reachable. |
+| Kubernetes API server metrics | Yes | Yes | Alloy scrapes the Kubernetes service `/metrics` endpoint with its service account token and cluster CA. |
 | Service and pod Prometheus metrics | Yes | No | Several services expose metrics ports; cert-manager, CoreDNS, and Traefik already advertise scrape metadata. |
-| Kubernetes object state metrics | Partly | No | `kube-state-metrics` has been removed, so classic `kube_*` object state series are not currently available. |
+| Kubernetes object state metrics | Yes | Yes | `kube-state-metrics` runs in `observability`, and Alloy scrapes it into Mimir. |
 
 ### Candidate Sources
 
@@ -119,16 +119,16 @@ sources that can be added incrementally.
 | --- | --- | --- | --- |
 | Kubernetes pod logs | stdout/stderr logs for application and platform pods | Yes | Enabled through Alloy Kubernetes pod discovery, `loki.source.kubernetes`, and relabeling for namespace, pod, container, node, and app labels. |
 | Kubernetes events | Scheduling, image pull, restart, and volume events | Yes | Already enabled; optionally improve labels and retention expectations. |
-| Kubelet `/metrics/cadvisor` | Container CPU, memory, filesystem, network, and per-pod usage history | Yes | Enabled through Alloy node discovery and authenticated `prometheus.scrape` via the API server node proxy; cAdvisor drops the high-cardinality `id` and `name` labels before remote write. |
+| Kubelet `/metrics/cadvisor` | Container CPU, memory, filesystem, network, and per-pod usage history | Yes | Enabled through Alloy node discovery and authenticated `prometheus.scrape` via the API server node proxy. |
 | Kubelet `/metrics` and `/metrics/resource` | Kubelet health, runtime, and pod resource metrics | Yes | Enabled through the same node-based API server proxy scrape path used for cAdvisor. |
-| Kubernetes API server `/metrics` | API request rate, latency, errors, watches, and API health | Yes | Add an authenticated scrape of the Kubernetes service/API endpoint using the Alloy service account token and cluster CA. |
+| Kubernetes API server `/metrics` | API request rate, latency, errors, watches, and API health | Yes | Enabled through an authenticated Alloy scrape of the Kubernetes service endpoint using the Alloy service account token and cluster CA. |
 | CoreDNS | DNS request volume, latency, cache behavior, and errors | Yes | Add service discovery scraping for the `kube-dns` metrics port `9153`. |
 | cert-manager | Certificate, ACME order, challenge, and controller metrics | Yes | Add annotation-based pod scraping; cert-manager pods advertise scrape metadata on port `9402`. |
 | Traefik | Ingress request count, latency, routers, services, and entrypoint metrics | Yes | Add annotation-based pod scraping; the Traefik pod advertises scrape metadata on port `9100`. |
 | Mimir, Loki, Grafana, and Alloy self-metrics | Health and performance of the observability stack | Yes | Add explicit scrapes for observability services with metrics ports. |
 | Loki cache metrics | Memcached cache hit/miss, eviction, and memory metrics | Yes | Scrape the Loki cache exporter ports exposed as `http-metrics` on `9150`. |
 | MetalLB metrics | Controller, speaker, and advertisement metrics | Likely | Add or verify MetalLB metrics service exposure and scrape the controller/speaker metrics endpoints. |
-| Kubernetes object state | Deployment replica state, pod phase, PVC status, job state, and restart metadata | Partly | Prefer adding Alloy's Kubernetes cluster receiver if it covers the needed dashboards; otherwise redeploy `kube-state-metrics` in `observability`. |
+| Kubernetes object state | Deployment replica state, pod phase, PVC status, job state, and restart metadata | Yes | Enabled through `kube-state-metrics` deployed in `observability` and scraped by Alloy. |
 | Node OS metrics | Disk, filesystem, load, systemd, and host network metrics | No | Add node-exporter, or run Alloy as a DaemonSet with host mounts and a node/unix exporter component. |
 | Node system logs | MicroK8s, kubelet, container runtime, and systemd logs | No | Add DaemonSet-style log collection with host mounts for journald and MicroK8s log paths. |
 
@@ -138,9 +138,10 @@ sources that can be added incrementally.
 | --- | --- | --- |
 | 1 | Pod logs with `loki.source.kubernetes` | Completed; Alloy now tails Kubernetes pod and container logs into Loki. |
 | 2 | Kubelet and cAdvisor metrics | Completed; Alloy now writes kubelet, kubelet resource, and cAdvisor metrics to Mimir. |
-| 3 | Annotation and service-port Prometheus scraping | Quickly captures cert-manager, CoreDNS, Traefik, and observability-stack self-metrics. |
-| 4 | Kubernetes object state metrics | Restores deployment, pod phase, PVC, job, and restart-state visibility without necessarily bringing back a separate kube-state-metrics deployment. |
-| 5 | Node OS logs and metrics | Useful for host-level troubleshooting, but it requires DaemonSet-style deployment or an additional exporter. |
+| 3 | Kubernetes API server metrics | Completed; Alloy now writes API server request, latency, watch, and health metrics to Mimir. |
+| 4 | Kubernetes object state metrics | Completed; `kube-state-metrics` restores deployment, pod phase, PVC, job, and restart-state visibility. |
+| 5 | Annotation and service-port Prometheus scraping | Quickly captures cert-manager, CoreDNS, Traefik, and observability-stack self-metrics. |
+| 6 | Node OS logs and metrics | Useful for host-level troubleshooting, but it requires DaemonSet-style deployment or an additional exporter. |
 
 The cluster does not currently have the Prometheus Operator
 `monitoring.coreos.com` ServiceMonitor/PodMonitor CRDs installed. Native Alloy

@@ -21,6 +21,10 @@ class AlloyConfig(ConfigBaseModel):
     version: str = pydantic.Field(description='Alloy Helm chart version.')
 
 
+class KubeStateMetricsConfig(ConfigBaseModel):
+    version: str = pydantic.Field(description='kube-state-metrics Helm chart version.')
+
+
 class IngressConfig(ConfigBaseModel):
     hostname: str = pydantic.Field(description='Ingress hostname for Grafana.')
 
@@ -30,6 +34,9 @@ class ComponentConfig(ConfigBaseModel):
     loki: LokiConfig = pydantic.Field(description='Loki deployment configuration.')
     mimir: MimirConfig = pydantic.Field(description='Mimir deployment configuration.')
     alloy: AlloyConfig = pydantic.Field(description='Alloy deployment configuration.')
+    kube_state_metrics: KubeStateMetricsConfig = pydantic.Field(
+        description='kube-state-metrics deployment configuration.'
+    )
     ingress: IngressConfig = pydantic.Field(
         description='Ingress configuration for exposed endpoints.'
     )

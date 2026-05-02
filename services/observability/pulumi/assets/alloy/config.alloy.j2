@@ -28,6 +28,40 @@ prometheus.remote_write "mimir" {
   }
 }
 
+prometheus.scrape "kubernetes_apiserver" {
+  targets = [
+    {
+      "__address__" = "kubernetes.default.svc:443",
+    },
+  ]
+
+  forward_to        = [prometheus.remote_write.mimir.receiver]
+  job_name          = "apiserver"
+  metrics_path      = "/metrics"
+  scheme            = "https"
+  scrape_interval   = "30s"
+  scrape_timeout    = "10s"
+  bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+  tls_config {
+    ca_file     = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    server_name = "kubernetes.default.svc"
+  }
+}
+
+prometheus.scrape "kube_state_metrics" {
+  targets = [
+    {
+      "__address__" = "kube-state-metrics.observability.svc.cluster.local:8080",
+    },
+  ]
+
+  forward_to      = [prometheus.remote_write.mimir.receiver]
+  job_name        = "kube-state-metrics"
+  scrape_interval = "30s"
+  scrape_timeout  = "10s"
+}
+
 discovery.kubernetes "nodes" {
   role = "node"
 }
@@ -137,15 +171,6 @@ discovery.relabel "kubelet_cadvisor_metrics" {
   }
 }
 
-prometheus.relabel "kubelet_cadvisor_metrics" {
-  forward_to = [prometheus.remote_write.mimir.receiver]
-
-  rule {
-    action = "labeldrop"
-    regex  = "^(id|name)$"
-  }
-}
-
 prometheus.scrape "kubelet_metrics" {
   targets             = discovery.relabel.kubelet_metrics.output
   forward_to          = [prometheus.remote_write.mimir.receiver]
@@ -176,10 +201,11 @@ prometheus.scrape "kubelet_resource_metrics" {
 
 prometheus.scrape "kubelet_cadvisor_metrics" {
   targets             = discovery.relabel.kubelet_cadvisor_metrics.output
-  forward_to          = [prometheus.relabel.kubelet_cadvisor_metrics.receiver]
+  forward_to          = [prometheus.remote_write.mimir.receiver]
   scheme              = "https"
   scrape_interval     = "30s"
   scrape_timeout      = "10s"
+  honor_timestamps    = false
   bearer_token_file   = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 
   tls_config {

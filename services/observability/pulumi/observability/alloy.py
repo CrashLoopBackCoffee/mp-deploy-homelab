@@ -58,7 +58,7 @@ def create_alloy(
         opts=k8s_opts,
     )
 
-    create_alloy_kubelet_proxy_rbac(alloy, k8s_opts)
+    create_alloy_cluster_metrics_rbac(alloy, k8s_opts)
     create_alloy_gateway_service(alloy, k8s_opts)
     export_alloy_endpoints()
 
@@ -83,7 +83,7 @@ def create_alloy_config(
     )
 
 
-def create_alloy_kubelet_proxy_rbac(
+def create_alloy_cluster_metrics_rbac(
     alloy: k8s.helm.v3.Release,
     k8s_opts: p.ResourceOptions,
 ) -> None:
@@ -94,6 +94,10 @@ def create_alloy_kubelet_proxy_rbac(
             k8s.rbac.v1.PolicyRuleArgs(
                 api_groups=[''],
                 resources=['nodes/proxy'],
+                verbs=['get'],
+            ),
+            k8s.rbac.v1.PolicyRuleArgs(
+                non_resource_urls=['/metrics'],
                 verbs=['get'],
             ),
         ],
