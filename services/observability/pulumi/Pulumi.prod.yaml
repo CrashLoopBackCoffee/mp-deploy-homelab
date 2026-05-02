@@ -6,15 +6,15 @@ config:
     loki:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=loki versioning=helm
       version: 6.31.0
-      retention_days: 3
+      retention-days: 3
     mimir:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=mimir-distributed versioning=helm
       version: 5.8.0
-      retention_days: 3
+      retention-days: 3
     alloy:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=alloy versioning=helm
       version: 1.2.1
-    kube_state_metrics:
+    kube-state-metrics:
       # renovate: datasource=helm registryUrl=https://prometheus-community.github.io/helm-charts packageName=kube-state-metrics versioning=helm
       version: 7.2.2
     ingress:
