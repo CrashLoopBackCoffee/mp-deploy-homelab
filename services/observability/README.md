@@ -107,7 +107,7 @@ sources that can be added incrementally.
 | OTLP application metrics and logs | Yes | Yes, when applications send OTLP | Alloy exposes OTLP gRPC on `4317` and OTLP HTTP on `4318`; metrics go to Mimir and logs go to Loki. |
 | Kubernetes events | Yes | Yes | Alloy already uses `loki.source.kubernetes_events`. |
 | Pod and container logs | Yes | Yes | Alloy discovers pods with `discovery.kubernetes`, relabels namespace, pod, container, node, and app labels, tails logs with `loki.source.kubernetes`, and drops backlog entries older than Loki accepts. |
-| Node and pod CPU/memory live metrics | Yes | No | `metrics-server` is installed and `kubectl top nodes/pods` works. For durable observability, prefer kubelet/cAdvisor scraping over metrics-server. |
+| Node and pod CPU/memory live metrics | Yes | Not intended | `metrics-server` is installed and `kubectl top nodes/pods` works, but it is not intended as the observability ingestion source; use kubelet/cAdvisor scraping instead. |
 | Kubelet and cAdvisor metrics | Yes | No | The kubelet cAdvisor endpoint is reachable through the API server node proxy. |
 | Kubernetes API server metrics | Yes | No | The API server `/metrics` endpoint is reachable. |
 | Service and pod Prometheus metrics | Yes | No | Several services expose metrics ports; cert-manager, CoreDNS, and Traefik already advertise scrape metadata. |
