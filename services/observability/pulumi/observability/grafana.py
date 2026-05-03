@@ -23,6 +23,20 @@ def create_grafana(
         special=False,
     ).result
 
+    data_pvc = k8s.core.v1.PersistentVolumeClaim(
+        'grafana-data',
+        metadata={'name': 'grafana-data'},
+        spec={
+            'access_modes': ['ReadWriteOnce'],
+            'storage_class_name': component_config.grafana.storage_class_name,
+            'resources': {'requests': {'storage': f'{component_config.grafana.storage_size_gb}Gi'}},
+        },
+        opts=p.ResourceOptions.merge(
+            k8s_opts,
+            p.ResourceOptions(protect=p.get_stack().startswith('prod')),
+        ),
+    )
+
     grafana = k8s.helm.v3.Release(
         'grafana',
         chart='grafana',
@@ -31,7 +45,11 @@ def create_grafana(
         values={
             'adminUser': admin_username,
             'adminPassword': admin_password,
-            'persistence': {'enabled': False},
+            'persistence': {
+                'enabled': True,
+                'type': 'pvc',
+                'existingClaim': data_pvc.metadata.name,
+            },
             'testFramework': {'enabled': False},
             'datasources': {
                 'datasources.yaml': {

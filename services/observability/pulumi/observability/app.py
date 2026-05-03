@@ -19,7 +19,10 @@ def create_observability(
     ns = k8s.core.v1.Namespace(
         'observability',
         metadata={'name': 'observability'},
-        opts=p.ResourceOptions(provider=k8s_provider),
+        opts=p.ResourceOptions(
+            provider=k8s_provider,
+            protect=p.get_stack().startswith('prod'),
+        ),
     )
 
     namespaced_k8s_provider = k8s.Provider(

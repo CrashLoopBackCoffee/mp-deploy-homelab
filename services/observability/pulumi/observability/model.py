@@ -7,6 +7,15 @@ from utils.model import ConfigBaseModel, get_pulumi_project
 
 class GrafanaConfig(ConfigBaseModel):
     version: str = pydantic.Field(description='Grafana Helm chart version.')
+    storage_class_name: str = pydantic.Field(
+        default='data-hostpath-retained',
+        description='Storage class for the Grafana data PVC.',
+    )
+    storage_size_gb: int = pydantic.Field(
+        default=5,
+        ge=1,
+        description='Size of the Grafana data PVC in GiB.',
+    )
 
 
 class LokiConfig(ConfigBaseModel):
