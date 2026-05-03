@@ -8,7 +8,7 @@ import pulumi_kubernetes as k8s
 
 from observability.constants import GRAFANA_CHART_URL
 from observability.gateway import service_http_url
-from observability.model import ComponentConfig
+from observability.model import ComponentConfig, StaticScrapeTarget
 
 ALLOY_SERVICE_NAME = 'alloy'
 ALLOY_OTLP_GRPC_PORT = 4317
@@ -35,6 +35,7 @@ def create_alloy(
             'alloy': {
                 'configMap': {
                     'content': create_alloy_config(
+                        static_scrape_targets=component_config.alloy.static_scrape_targets,
                         loki_gateway=loki_gateway,
                         mimir_gateway=mimir_gateway,
                     ),
@@ -67,6 +68,7 @@ def create_alloy(
 
 def create_alloy_config(
     *,
+    static_scrape_targets: list[StaticScrapeTarget],
     loki_gateway: k8s.core.v1.Service,
     mimir_gateway: k8s.core.v1.Service,
 ) -> p.Output[str]:
@@ -75,6 +77,7 @@ def create_alloy_config(
         loki_push_url=service_http_url(loki_gateway, '/loki/api/v1/push'),
         otlp_grpc_port=ALLOY_OTLP_GRPC_PORT,
         otlp_http_port=ALLOY_OTLP_HTTP_PORT,
+        static_scrape_targets=static_scrape_targets,
     ).apply(
         lambda values: jinja2.Template(
             pathlib.Path('assets/alloy/config.alloy.j2').read_text(),

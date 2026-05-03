@@ -18,6 +18,29 @@ config:
     alloy:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=alloy versioning=helm
       version: 1.2.1
+      static-scrape-targets:
+        - name: pbs_node_exporter
+          job-name: node-exporter
+          address: pbs.mpagel.de:9100
+          labels:
+            instance: pbs
+            role: pbs
+            source: proxmox
+        - name: pve_node_exporter
+          job-name: node-exporter
+          address: pve-02.mpagel.de:9100
+          labels:
+            instance: pve-02
+            role: pve
+            source: proxmox
+        - name: pve_exporter
+          job-name: pve-exporter
+          address: pve-02.mpagel.de:9221
+          metrics-path: /pve
+          labels:
+            instance: pve-02
+            role: pve
+            source: proxmox
     kube-state-metrics:
       # renovate: datasource=helm registryUrl=https://prometheus-community.github.io/helm-charts packageName=kube-state-metrics versioning=helm
       version: 7.2.2

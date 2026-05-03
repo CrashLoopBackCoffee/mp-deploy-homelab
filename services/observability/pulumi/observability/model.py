@@ -60,8 +60,34 @@ class MimirConfig(ConfigBaseModel):
     )
 
 
+class StaticScrapeTarget(ConfigBaseModel):
+    name: str = pydantic.Field(description='Alloy component name for this scrape target.')
+    job_name: str = pydantic.Field(description='Prometheus job label for scraped samples.')
+    address: str = pydantic.Field(description='Host and port scraped by Alloy.')
+    metrics_path: str = pydantic.Field(
+        default='/metrics',
+        description='HTTP path that exposes Prometheus metrics.',
+    )
+    scrape_interval: str = pydantic.Field(
+        default='30s',
+        description='How often Alloy scrapes this target.',
+    )
+    scrape_timeout: str = pydantic.Field(
+        default='10s',
+        description='How long Alloy waits for a scrape response.',
+    )
+    labels: dict[str, str] = pydantic.Field(
+        default_factory=dict,
+        description='Additional static labels to attach to the target.',
+    )
+
+
 class AlloyConfig(ConfigBaseModel):
     version: str = pydantic.Field(description='Alloy Helm chart version.')
+    static_scrape_targets: list[StaticScrapeTarget] = pydantic.Field(
+        default_factory=list,
+        description='Explicit non-Kubernetes Prometheus scrape targets.',
+    )
 
 
 class KubeStateMetricsConfig(ConfigBaseModel):

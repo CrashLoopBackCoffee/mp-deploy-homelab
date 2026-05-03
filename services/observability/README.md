@@ -174,6 +174,8 @@ Mimir. Additional Prometheus-style scrape targets can be added incrementally.
 | Kubernetes API server metrics | Yes | Yes | Alloy scrapes the Kubernetes service `/metrics` endpoint with its service account token and cluster CA. |
 | Service and pod Prometheus metrics | Yes | No | Several services expose metrics ports; cert-manager, CoreDNS, and Traefik already advertise scrape metadata. |
 | Kubernetes object state metrics | Yes | Yes | `kube-state-metrics` runs in `observability`, and Alloy scrapes it into Mimir. |
+| Proxmox and PBS host OS metrics | Yes | Configured | Alloy has static scrapes for node-exporter on `pve-02.mpagel.de:9100` and `pbs.mpagel.de:9100`. |
+| Proxmox VE metrics | Yes | Configured | Alloy has a static scrape for `prometheus-pve-exporter` on `pve-02.mpagel.de:9221/pve`. |
 
 ### Candidate Sources
 
@@ -191,7 +193,9 @@ Mimir. Additional Prometheus-style scrape targets can be added incrementally.
 | Loki cache metrics | Memcached cache hit/miss, eviction, and memory metrics | Yes | Scrape the Loki cache exporter ports exposed as `http-metrics` on `9150`. |
 | MetalLB metrics | Controller, speaker, and advertisement metrics | Likely | Add or verify MetalLB metrics service exposure and scrape the controller/speaker metrics endpoints. |
 | Kubernetes object state | Deployment replica state, pod phase, PVC status, job state, and restart metadata | Yes | Enabled through `kube-state-metrics` deployed in `observability` and scraped by Alloy. |
-| Node OS metrics | Disk, filesystem, load, systemd, and host network metrics | No | Add node-exporter, or run Alloy as a DaemonSet with host mounts and a node/unix exporter component. |
+| Proxmox and PBS node OS metrics | Disk, filesystem, load, and host network metrics for the external hypervisor/backup hosts | Yes | Configured through explicit Alloy static scrapes of the existing node-exporter endpoints. |
+| Proxmox VE metrics | VM/CT state, VM CPU and memory usage, storage usage, backup coverage, and Proxmox version/subscription metadata | Yes | Configured through an explicit Alloy static scrape of the existing `prometheus-pve-exporter` endpoint. |
+| Kubernetes node OS metrics | Disk, filesystem, load, systemd, and host network metrics for the Kubernetes VM guest OS | No | Add node-exporter inside the Kubernetes nodes, or run Alloy as a DaemonSet with host mounts and a node/unix exporter component. |
 | Node system logs | MicroK8s, kubelet, container runtime, and systemd logs | No | Add DaemonSet-style log collection with host mounts for journald and MicroK8s log paths. |
 
 ### Suggested Order
@@ -209,6 +213,48 @@ The cluster does not currently have the Prometheus Operator
 `monitoring.coreos.com` ServiceMonitor/PodMonitor CRDs installed. Native Alloy
 discovery and scrape configuration therefore fits the current cluster better
 than introducing ServiceMonitor-based collection right now.
+
+### Proxmox Scrape Follow-Up
+
+Alloy is configured to scrape the external Proxmox/PBS exporters, but the
+targets are currently down from Mimir's point of view:
+
+- `up{source="proxmox"}` returns `0` for `pbs` node-exporter, `pve-02`
+  node-exporter, and `pve-02` pve-exporter.
+- The deployed Alloy ConfigMap contains the expected static scrape jobs.
+- DNS resolution works from inside the cluster:
+  - `pve-02.mpagel.de` resolves to `10.0.6.202`
+  - `pbs.mpagel.de` resolves to `10.0.6.240`
+- Temporary curl pods in `observability` time out when connecting to
+  `10.0.6.202:9100`, `10.0.6.202:9221`, and `10.0.6.240:9100`.
+
+Likely cause: VLAN routing or firewall policy between the Kubernetes network
+in `10.0.10.x` and the Proxmox/PBS control-plane network in `10.0.6.x`.
+
+Next time:
+
+1. Add a narrow router/firewall allow rule from the Kubernetes node or pod
+   egress source to:
+   - `10.0.6.202` TCP `9100`
+   - `10.0.6.202` TCP `9221`
+   - `10.0.6.240` TCP `9100`
+2. Verify from inside Kubernetes:
+
+   ```sh
+   kubectl --kubeconfig /home/mike/.kube/microk8s-prod -n observability run curl-pve-exporter --rm -i --restart=Never --image=curlimages/curl:8.16.0 --command -- curl -fsS --max-time 5 http://pve-02.mpagel.de:9221/pve
+   kubectl --kubeconfig /home/mike/.kube/microk8s-prod -n observability run curl-pve-node --rm -i --restart=Never --image=curlimages/curl:8.16.0 --command -- curl -fsS --max-time 5 http://pve-02.mpagel.de:9100/metrics
+   kubectl --kubeconfig /home/mike/.kube/microk8s-prod -n observability run curl-pbs-node --rm -i --restart=Never --image=curlimages/curl:8.16.0 --command -- curl -fsS --max-time 5 http://pbs.mpagel.de:9100/metrics
+   ```
+
+3. Confirm in Grafana or Mimir:
+
+   ```promql
+   up{source="proxmox"}
+   pve_up
+   ```
+
+Once the curl tests work, Alloy should flip `up{source="proxmox"}` to `1` and
+the `pve_*` metrics should appear after the next 30 second scrape interval.
 
 ## Delivery Plan
 

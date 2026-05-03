@@ -28,6 +28,26 @@ prometheus.remote_write "mimir" {
   }
 }
 
+{% for target in static_scrape_targets %}
+prometheus.scrape "{{ target.name }}" {
+  targets = [
+    {
+      "__address__" = "{{ target.address }}",
+{% for label_name, label_value in target.labels.items() %}
+      "{{ label_name }}" = "{{ label_value }}",
+{% endfor %}
+    },
+  ]
+
+  forward_to      = [prometheus.remote_write.mimir.receiver]
+  job_name        = "{{ target.job_name }}"
+  metrics_path    = "{{ target.metrics_path }}"
+  scrape_interval = "{{ target.scrape_interval }}"
+  scrape_timeout  = "{{ target.scrape_timeout }}"
+}
+
+{% endfor %}
+
 prometheus.scrape "kubernetes_apiserver" {
   targets = [
     {
