@@ -16,6 +16,26 @@ class GrafanaConfig(ConfigBaseModel):
         ge=1,
         description='Size of the Grafana data PVC in GiB.',
     )
+    backup_enabled: bool = pydantic.Field(
+        default=True,
+        description='Whether to create the Grafana backup CronJob.',
+    )
+    backup_schedule: str = pydantic.Field(
+        default='0 */2 * * *',
+        description='Cron schedule for the Grafana backup job.',
+    )
+    backup_storage_class_name: str = pydantic.Field(
+        default='samba-write-k8s',
+        description='Storage class for the Grafana backup PVC.',
+    )
+    backup_storage_size_gb: int = pydantic.Field(
+        default=5,
+        ge=1,
+        description='Size of the Grafana backup PVC in GiB.',
+    )
+    backup_python_version: str = pydantic.Field(
+        description='Python image tag used by the Grafana backup CronJob.',
+    )
 
 
 class LokiConfig(ConfigBaseModel):

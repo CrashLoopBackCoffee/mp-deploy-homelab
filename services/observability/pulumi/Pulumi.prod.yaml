@@ -3,6 +3,8 @@ config:
     grafana:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=grafana versioning=helm
       version: 10.1.5
+      # renovate: datasource=docker packageName=python versioning=docker
+      backup-python-version: 3.14-alpine
     loki:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=loki versioning=helm
       version: 6.31.0
