@@ -25,11 +25,14 @@ def create_grafana(
     k8s_opts: p.ResourceOptions,
 ) -> k8s.helm.v3.Release:
     admin_username = 'admin'
-    admin_password = random.RandomPassword(
-        'grafana-admin-password',
-        length=64,
-        special=False,
-    ).result
+    admin_password = (
+        component_config.grafana.admin_password
+        or random.RandomPassword(
+            'grafana-admin-password',
+            length=64,
+            special=False,
+        ).result
+    )
 
     secret_key = random.RandomPassword(
         'grafana-secret-key',

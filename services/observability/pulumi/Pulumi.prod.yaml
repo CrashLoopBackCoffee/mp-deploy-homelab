@@ -5,6 +5,8 @@ config:
       version: 10.1.5
       # renovate: datasource=docker packageName=python versioning=docker
       backup-python-version: 3.14-alpine
+      admin-password:
+        secure: AAABAEM5oB9kymDzomUyc6PeyEn3tHco+1pd+twZ9M1WZpHrpju7pPvAVj8fvtLMkskA1dyXVKJolBwWFTeAtb+XoTHI9br87ayYjJ84EOw=
     loki:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=loki versioning=helm
       version: 6.31.0

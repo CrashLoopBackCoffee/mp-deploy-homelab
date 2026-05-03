@@ -2,11 +2,15 @@
 
 import pydantic
 
-from utils.model import ConfigBaseModel, get_pulumi_project
+from utils.model import ConfigBaseModel, PulumiSecret, get_pulumi_project
 
 
 class GrafanaConfig(ConfigBaseModel):
     version: str = pydantic.Field(description='Grafana Helm chart version.')
+    admin_password: PulumiSecret | None = pydantic.Field(
+        default=None,
+        description='Grafana admin password. Generated when unset.',
+    )
     storage_class_name: str = pydantic.Field(
         default='data-hostpath-retained',
         description='Storage class for the Grafana data PVC.',
