@@ -8,6 +8,9 @@ from observability.constants import GRAFANA_CHART_URL
 from observability.gateway import service_http_url
 from observability.model import ComponentConfig
 
+GRAFANA_SECRET_KEY_SECRET_NAME = 'grafana-secret-key'
+GRAFANA_SECRET_KEY_SECRET_KEY = 'secret-key'
+
 
 def create_grafana(
     component_config: ComponentConfig,
@@ -23,6 +26,25 @@ def create_grafana(
         special=False,
     ).result
 
+    secret_key = random.RandomPassword(
+        'grafana-secret-key',
+        length=64,
+        special=False,
+    ).result
+
+    protected_k8s_opts = p.ResourceOptions.merge(
+        k8s_opts,
+        p.ResourceOptions(protect=p.get_stack().startswith('prod')),
+    )
+
+    secret_key_secret = k8s.core.v1.Secret(
+        GRAFANA_SECRET_KEY_SECRET_NAME,
+        metadata={'name': GRAFANA_SECRET_KEY_SECRET_NAME},
+        string_data={GRAFANA_SECRET_KEY_SECRET_KEY: secret_key},
+        type='Opaque',
+        opts=protected_k8s_opts,
+    )
+
     data_pvc = k8s.core.v1.PersistentVolumeClaim(
         'grafana-data',
         metadata={'name': 'grafana-data'},
@@ -31,10 +53,7 @@ def create_grafana(
             'storage_class_name': component_config.grafana.storage_class_name,
             'resources': {'requests': {'storage': f'{component_config.grafana.storage_size_gb}Gi'}},
         },
-        opts=p.ResourceOptions.merge(
-            k8s_opts,
-            p.ResourceOptions(protect=p.get_stack().startswith('prod')),
-        ),
+        opts=protected_k8s_opts,
     )
 
     grafana = k8s.helm.v3.Release(
@@ -50,6 +69,15 @@ def create_grafana(
                 'type': 'pvc',
                 'existingClaim': data_pvc.metadata.name,
             },
+            'envValueFrom': {
+                'GF_SECURITY_SECRET_KEY': {
+                    'secretKeyRef': {
+                        'name': secret_key_secret.metadata.name,
+                        'key': GRAFANA_SECRET_KEY_SECRET_KEY,
+                    },
+                },
+            },
+            'initChownData': {'enabled': False},
             'testFramework': {'enabled': False},
             'datasources': {
                 'datasources.yaml': {
@@ -116,5 +144,16 @@ def create_grafana(
     p.export('grafana-hostname', component_config.ingress.hostname)
     p.export('grafana-admin-username', admin_username)
     p.export('grafana-admin-password', admin_password)
+    p.export(
+        'grafana-secret-key-backup-path',
+        p.Output.concat(
+            'k8s://Secret/',
+            secret_key_secret.metadata.namespace,
+            '/',
+            secret_key_secret.metadata.name,
+            '#',
+            GRAFANA_SECRET_KEY_SECRET_KEY,
+        ),
+    )
 
     return grafana
