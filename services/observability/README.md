@@ -22,11 +22,11 @@ Future scope:
 - Use monolithic or single-binary deployment modes first to reduce operational
   complexity. For the expected homelab scale, this should be a reasonable
   tradeoff and should not be a major performance problem.
-- Start without PVCs so the stack can be created, tested, and torn down
-  repeatedly without manual storage cleanup.
-- Add persistence later, once the basic stack shape is working reliably.
-- When persistence is introduced, prefer the preexisting retained storage class
-  by default and keep the storage class configurable.
+- Add persistence incrementally. Grafana now has PVC-backed state and a backup
+  job because it contains UI-managed configuration. Loki and Mimir remain
+  ephemeral until their storage model is worth operating.
+- Prefer the preexisting retained hostpath storage class for important live
+  state and keep storage classes configurable.
 - Follow the existing project pattern:
   - one Pulumi service under `services/observability`
   - config validated with Pydantic
@@ -42,36 +42,32 @@ Future scope:
 
 ### Storage
 
-- Initial rollout is intentionally ephemeral and should avoid PVCs.
-- Loki, Mimir, and Grafana should be wired so persistence can be introduced
-  later with minimal structural change.
-- Once persistence is added:
-  - start with one PVC per stateful component
-  - use a dedicated MicroK8s hostpath storage class backed by an external SSD
-  - treat size changes as an explicit migration concern, not as something to
-    rely on casually during early rollout
-  - configure service-level retention so PVC size is a safety boundary, not the
-    primary retention mechanism
+- Grafana uses a dedicated PVC for live state and a separate backup PVC.
+- Loki and Mimir currently use filesystem storage on ephemeral volumes.
+- The Kubernetes stack already provides `data-hostpath-retained`, a retained
+  MicroK8s hostpath StorageClass backed by the node data disk.
+- Future Loki and Mimir persistence should use separate PVCs and keep
+  service-level retention as the primary data boundary. PVC size should be a
+  safety boundary, not the retention mechanism.
+- Treat size changes as explicit migration work, not as something to rely on
+  casually during operation.
 
 ### Persistence Direction
 
-The planned production persistence model is local persistent storage on the
-single MicroK8s node. The physical storage will be an external SSD mounted on
-the host, exposed through a dedicated MicroK8s `hostpath-storage` StorageClass
-using the `microk8s.io/hostpath` provisioner.
+The production persistence model is local persistent storage on the single
+MicroK8s node. The Kubernetes stack creates `data-hostpath-retained` with the
+`microk8s.io/hostpath` provisioner, `parameters.pvDir` pointed at the node data
+disk mount, and `reclaimPolicy: Retain`.
 
-Planned defaults:
+Current defaults:
 
-- Create a dedicated StorageClass for observability storage instead of using
-  the cluster default.
-- Point the StorageClass at the final SSD mount point with `parameters.pvDir`.
-- Use `reclaimPolicy: Retain` so deleting a PVC does not silently delete the
-  underlying observability data.
-- Keep the storage class name configurable in Pulumi.
+- Grafana live state uses `data-hostpath-retained` by default.
+- Grafana backups use `samba-write-k8s` by default.
+- Loki and Mimir are still ephemeral and should move to separate retained PVCs
+  when their persistence is enabled.
+- Keep storage class names configurable in Pulumi.
 - Use separate PVCs for Loki, Mimir, and Grafana state rather than one shared
   catch-all volume.
-- Store all live observability state on the SSD-backed hostpath StorageClass:
-  Loki, Mimir, and Grafana should all use PVCs on the external SSD.
 - Treat Loki and Mimir data as bulky, retention-bound telemetry. It should
   survive ordinary pod restarts and node reboots, but it is not the critical
   source of truth for the homelab.
@@ -79,9 +75,9 @@ Planned defaults:
   folders, Grafana-managed alert rules, contact points, notification policies,
   users, and UI-edited data source settings live in Grafana's database when
   they are managed through the UI.
-- Set explicit 30-day retention for logs and metrics:
-  - Loki: enable compactor retention and set log retention to 30 days.
-  - Mimir: configure compactor block retention to 30 days.
+- Keep log and metric retention explicit:
+  - Loki: enable compactor retention and set log retention through config.
+  - Mimir: configure compactor block retention through config.
 - Set explicit PVC sizes and alert before the SSD is close to full.
 
 Operational notes:
@@ -91,36 +87,41 @@ Operational notes:
   volumes will remain tied to the node that owns the SSD.
 - The SSD should be mounted by a stable identifier, such as filesystem UUID,
   so the path survives reboots.
-- The mount point should be prepared before enabling PVC-backed observability
-  storage. The Pulumi config should then reference the final mount-backed
-  StorageClass.
+- The mount point should be prepared before enabling additional PVC-backed
+  observability storage. The Pulumi config should then reference the final
+  mount-backed StorageClass.
 - Grafana should use a separate small PVC from Loki and Mimir. Even if it lives
   on the same physical SSD, it should have a different backup and restore
   expectation than retained telemetry data.
-- Implement a proper backup job after live PVC-backed persistence is in place.
-  Grafana's PVC is the important backup target because it contains UI-managed
-  configuration. The backup should include the Grafana database and any related
-  SQLite WAL/SHM files when present. A brief scale-down or SQLite-aware backup
-  is preferred for consistent snapshots, but raw quiet-time copies are usually
-  low risk when Grafana config changes are rare.
+- Grafana backups are implemented as a CronJob that uses SQLite's backup API
+  and also backs up the Grafana secret key. Restore documentation still needs to
+  be written before treating the backup path as fully operational.
 - Grafana secret material, especially the secret key used to encrypt secure
   settings, must be backed up or reproducibly configured together with the
   database. Without it, restored data source credentials and similar secure
   fields may not be usable.
+- Changing the configured Grafana admin password updates the stack-owned value
+  and Helm input, but does not necessarily rewrite the admin password already
+  stored in Grafana's database. Enforcing that value after first boot would need
+  an explicit reset path, such as a startup/init reset.
 
 ### Workloads
 
 - Grafana:
   - single deployment
-  - generated admin credentials
+  - configured admin password with generated fallback
+  - PVC-backed SQLite state
+  - backup CronJob for the database and secret key
   - preconfigured datasources for Loki and Mimir
 - Loki:
   - monolithic deployment
   - filesystem-based local storage layout
+  - ephemeral volume for now
   - service exposed only inside the cluster
 - Mimir:
   - monolithic deployment
   - filesystem-backed local storage layout
+  - ephemeral volumes for now
   - service exposed only inside the cluster
 - Alloy:
   - central gateway deployment
@@ -144,20 +145,22 @@ Operational notes:
 - Namespace name: `observability`
 - Initial stack scope: one `observability` stack with `prod` config only
 - Deployment mode: monolithic where available
-- Grafana admin credentials: generated
-- Persistence: deferred until after the first working stack
-- Default persistence direction later: dedicated MicroK8s hostpath StorageClass
-  backed by an external SSD
-- Target retention once persistent: 30 days for Loki logs and Mimir metrics
+- Grafana admin credentials: configured secret with generated fallback
+- Persistence: partial
+  - Grafana live state is persisted and backed up.
+  - Loki and Mimir are still ephemeral.
+- Default persistence direction: retained MicroK8s hostpath StorageClass backed
+  by the node data disk
+- Current prod retention: 3 days for Loki logs and Mimir metrics
 - Cluster metrics and logs: collected by the same Alloy deployment
 - Tempo later: added to the same stack
 
 ## Cluster Ingestion Opportunities
 
 The current stack already has Grafana, Mimir, Loki, and Alloy running in the
-`observability` namespace. Alloy currently acts as an OTLP gateway and forwards
-Kubernetes events to Loki. The cluster also exposes several metric and log
-sources that can be added incrementally.
+`observability` namespace. Alloy acts as an OTLP gateway, forwards Kubernetes
+events and pod logs to Loki, and scrapes the first cluster metric sources into
+Mimir. Additional Prometheus-style scrape targets can be added incrementally.
 
 ### Current Ingestion State
 
@@ -250,12 +253,15 @@ than introducing ServiceMonitor-based collection right now.
 - [x] Status: Completed
 
 - Deploy Grafana.
-- Generate admin credentials and export them from the stack.
+- Configure admin credentials from stack config, with generated fallback, and
+  export them from the stack.
 - Configure datasources for:
   - Loki
   - Mimir
 - Expose Grafana with Traefik.
 - Export the resulting FQDN from the stack.
+- Persist Grafana state on a retained PVC.
+- Back up Grafana's SQLite database and secret key with a CronJob.
 
 ### Phase 5: Alloy Gateway
 
@@ -274,28 +280,23 @@ than introducing ServiceMonitor-based collection right now.
 
 ### Phase 6: Persistence
 
-- [ ] Status: Not started
+- Status: In progress
 
-- Introduce PVC-backed storage only after the ephemeral stack works well.
-- Prepare an external SSD on the single MicroK8s node and mount it at a stable
-  host path.
-- Create a dedicated MicroK8s hostpath StorageClass for observability data,
-  using `microk8s.io/hostpath`, `parameters.pvDir` pointing at the SSD-backed
-  directory, and `reclaimPolicy: Retain`.
-- Keep the storage class name configurable.
-- Add separate PVC-backed storage for Loki, Mimir, and Grafana state.
-- Put all three live PVCs on the SSD-backed hostpath StorageClass.
-- Size and operate Loki/Mimir PVCs as retention-bound telemetry storage.
-- Size and operate the Grafana PVC as small configuration state that is backed
-  up separately from the telemetry data.
-- Configure 30-day log retention in Loki and 30-day metrics retention in Mimir.
-- Set explicit PVC sizes and add disk/PVC usage alerts before treating the
-  stack as production-ready.
-- Add a follow-up backup job for Grafana state, choosing between brief
-  scale-down snapshots, SQLite-aware online backups, or another consistent
-  backup mechanism.
-- Add protection for critical PVC-backed resources in `prod` where appropriate.
-- Document any resize or migration procedure explicitly before relying on it.
+- [x] Prepare a retained hostpath StorageClass in the Kubernetes stack.
+- [x] Keep storage class names configurable.
+- [x] Persist Grafana state on a dedicated PVC.
+- [x] Protect the Grafana namespace, secret key secret, and PVCs in `prod`.
+- [x] Add a Grafana backup CronJob using SQLite's backup API.
+- [x] Back up Grafana's secret key with the database.
+- [ ] Add separate PVC-backed storage for Loki and Mimir.
+- [ ] Size and operate Loki/Mimir PVCs as retention-bound telemetry storage.
+- [ ] Decide whether prod retention should stay at 3 days or move to the
+  originally planned 30 days.
+- [ ] Add disk/PVC usage alerts before treating the stack as production-ready.
+- [ ] Document Grafana restore, PVC resize, and migration procedures explicitly
+  before relying on them.
+- [ ] Decide whether Grafana admin password config should be enforced into the
+  existing database on pod restart, or remain an initial/admin-secret value.
 
 ### Phase 7: Hardening and Reuse
 
