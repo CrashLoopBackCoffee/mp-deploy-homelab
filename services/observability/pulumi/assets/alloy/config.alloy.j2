@@ -310,6 +310,15 @@ loki.source.kubernetes_events "cluster_events" {
   log_format = "logfmt"
 }
 
+loki.source.api "external_push" {
+  http {
+    listen_address = "0.0.0.0"
+    listen_port    = {{ loki_push_port }}
+  }
+
+  forward_to = [loki.write.loki.receiver]
+}
+
 loki.write "loki" {
   endpoint {
     url = "{{ loki_push_url }}"

@@ -95,7 +95,8 @@ class KubeStateMetricsConfig(ConfigBaseModel):
 
 
 class IngressConfig(ConfigBaseModel):
-    hostname: str = pydantic.Field(description='Ingress hostname for Grafana.')
+    grafana_hostname: str = pydantic.Field(description='Ingress hostname for Grafana.')
+    logs_hostname: str = pydantic.Field(description='Ingress hostname for external log ingestion.')
 
 
 class ComponentConfig(ConfigBaseModel):

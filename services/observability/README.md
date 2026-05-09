@@ -135,10 +135,12 @@ Operational notes:
 ### Networking
 
 - Expose Grafana through Traefik in the cluster.
+- Expose the Alloy Loki-compatible push receiver through Traefik for external
+  log producers such as Home Assistant logspout.
 - Prefer an internal wildcard hostname first, following the existing
   `app.<domain>` pattern used by other services.
-- Keep Loki, Mimir, and Alloy cluster-internal unless a concrete external use
-  case appears.
+- Keep Loki and Mimir cluster-internal; use Alloy as the authenticated external
+  ingestion boundary when external producers are needed.
 
 ## Current Decisions
 
@@ -169,6 +171,7 @@ Mimir. Additional Prometheus-style scrape targets can be added incrementally.
 | OTLP application metrics and logs | Yes | Yes, when applications send OTLP | Alloy exposes OTLP gRPC on `4317` and OTLP HTTP on `4318`; metrics go to Mimir and logs go to Loki. |
 | Kubernetes events | Yes | Yes | Alloy already uses `loki.source.kubernetes_events`. |
 | Pod and container logs | Yes | Yes | Alloy discovers pods with `discovery.kubernetes`, relabels namespace, pod, container, node, and app labels, tails logs with `loki.source.kubernetes`, and drops backlog entries older than Loki accepts. |
+| External Loki push logs | Yes | Configured | Alloy exposes a Loki-compatible push receiver through Traefik at `logs.app.mpagel.de/loki/api/v1/push`, protected with Traefik BasicAuth. |
 | Node and pod CPU/memory live metrics | Yes | Not intended | `metrics-server` is installed and `kubectl top nodes/pods` works, but it is not intended as the observability ingestion source; use kubelet/cAdvisor scraping instead. |
 | Kubelet and cAdvisor metrics | Yes | Yes | Alloy discovers nodes and scrapes kubelet `/metrics`, kubelet `/metrics/resource`, and cAdvisor `/metrics/cadvisor` through the API server node proxy. |
 | Kubernetes API server metrics | Yes | Yes | Alloy scrapes the Kubernetes service `/metrics` endpoint with its service account token and cluster CA. |
