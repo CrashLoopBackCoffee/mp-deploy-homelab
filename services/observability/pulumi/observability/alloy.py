@@ -13,6 +13,7 @@ from observability.model import ComponentConfig, StaticScrapeTarget
 ALLOY_SERVICE_NAME = 'alloy'
 ALLOY_OTLP_GRPC_PORT = 4317
 ALLOY_OTLP_HTTP_PORT = 4318
+ALLOY_LOKI_PUSH_PORT = 3100
 
 
 def create_alloy(
@@ -21,7 +22,7 @@ def create_alloy(
     loki_gateway: k8s.core.v1.Service,
     mimir_gateway: k8s.core.v1.Service,
     k8s_opts: p.ResourceOptions,
-) -> k8s.helm.v3.Release:
+) -> tuple[k8s.helm.v3.Release, k8s.core.v1.Service]:
     alloy = k8s.helm.v3.Release(
         'alloy',
         chart='alloy',
@@ -53,6 +54,12 @@ def create_alloy(
                         'targetPort': ALLOY_OTLP_HTTP_PORT,
                         'protocol': 'TCP',
                     },
+                    {
+                        'name': 'loki-push',
+                        'port': ALLOY_LOKI_PUSH_PORT,
+                        'targetPort': ALLOY_LOKI_PUSH_PORT,
+                        'protocol': 'TCP',
+                    },
                 ],
             },
         },
@@ -60,10 +67,10 @@ def create_alloy(
     )
 
     create_alloy_cluster_metrics_rbac(alloy, k8s_opts)
-    create_alloy_gateway_service(alloy, k8s_opts)
+    service = create_alloy_gateway_service(alloy, k8s_opts)
     export_alloy_endpoints()
 
-    return alloy
+    return alloy, service
 
 
 def create_alloy_config(
@@ -77,6 +84,7 @@ def create_alloy_config(
         loki_push_url=service_http_url(loki_gateway, '/loki/api/v1/push'),
         otlp_grpc_port=ALLOY_OTLP_GRPC_PORT,
         otlp_http_port=ALLOY_OTLP_HTTP_PORT,
+        loki_push_port=ALLOY_LOKI_PUSH_PORT,
         static_scrape_targets=static_scrape_targets,
     ).apply(
         lambda values: jinja2.Template(
@@ -129,8 +137,8 @@ def create_alloy_cluster_metrics_rbac(
 def create_alloy_gateway_service(
     alloy: k8s.helm.v3.Release,
     k8s_opts: p.ResourceOptions,
-) -> None:
-    k8s.core.v1.Service(
+) -> k8s.core.v1.Service:
+    return k8s.core.v1.Service(
         ALLOY_SERVICE_NAME,
         metadata={'name': ALLOY_SERVICE_NAME},
         spec={
@@ -149,6 +157,11 @@ def create_alloy_gateway_service(
                     'port': ALLOY_OTLP_HTTP_PORT,
                     'target_port': 'otlp-http',
                 },
+                {
+                    'name': 'loki-push',
+                    'port': ALLOY_LOKI_PUSH_PORT,
+                    'target_port': 'loki-push',
+                },
             ],
         },
         opts=k8s_opts,
@@ -163,4 +176,8 @@ def export_alloy_endpoints() -> None:
     p.export(
         'alloy-otlp-http-endpoint',
         f'http://{ALLOY_SERVICE_NAME}.observability.svc.cluster.local:{ALLOY_OTLP_HTTP_PORT}',
+    )
+    p.export(
+        'alloy-loki-push-endpoint',
+        f'http://{ALLOY_SERVICE_NAME}.observability.svc.cluster.local:{ALLOY_LOKI_PUSH_PORT}',
     )

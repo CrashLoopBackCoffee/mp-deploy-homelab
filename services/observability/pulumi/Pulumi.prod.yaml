@@ -45,4 +45,5 @@ config:
       # renovate: datasource=helm registryUrl=https://prometheus-community.github.io/helm-charts packageName=kube-state-metrics versioning=helm
       version: 7.2.2
     ingress:
-      hostname: grafana.app.mpagel.de
+      grafana-hostname: grafana.app.mpagel.de
+      logs-hostname: logs.app.mpagel.de

@@ -142,7 +142,11 @@ def create_grafana(
             'routes': [
                 {
                     'kind': 'Rule',
-                    'match': p.Output.concat('Host(`', component_config.ingress.hostname, '`)'),
+                    'match': p.Output.concat(
+                        'Host(`',
+                        component_config.ingress.grafana_hostname,
+                        '`)',
+                    ),
                     'services': [
                         {
                             'name': service.metadata.name,
@@ -158,7 +162,7 @@ def create_grafana(
         opts=k8s_opts,
     )
 
-    p.export('grafana-hostname', component_config.ingress.hostname)
+    p.export('grafana-hostname', component_config.ingress.grafana_hostname)
     p.export('grafana-admin-username', admin_username)
     p.export('grafana-admin-password', admin_password)
     p.export(

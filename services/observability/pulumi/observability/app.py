@@ -7,6 +7,7 @@ from observability.alloy import create_alloy
 from observability.gateway import create_loki_gateway_service, create_mimir_gateway_service
 from observability.grafana import create_grafana
 from observability.kube_state_metrics import create_kube_state_metrics
+from observability.logs import create_logs_ingress
 from observability.loki import create_loki
 from observability.mimir import create_mimir
 from observability.model import ComponentConfig
@@ -43,12 +44,17 @@ def create_observability(
         mimir_gateway=mimir_gateway,
         k8s_opts=k8s_opts,
     )
-    create_alloy(
+    _, alloy_service = create_alloy(
         component_config,
         loki_gateway=loki_gateway,
         mimir_gateway=mimir_gateway,
         k8s_opts=k8s_opts,
     )
+    create_logs_ingress(
+        component_config,
+        alloy_service=alloy_service,
+        k8s_opts=k8s_opts,
+    )
 
-    p.export('phase', 'phase-5-alloy-gateway')
+    p.export('phase', 'phase-6-external-log-ingest')
     p.export('namespace', ns.metadata['name'])
