@@ -310,13 +310,52 @@ loki.source.kubernetes_events "cluster_events" {
   log_format = "logfmt"
 }
 
+loki.relabel "external_push" {
+  forward_to = [loki.write.loki.receiver]
+
+  rule {
+    action        = "replace"
+    regex         = "(.+)"
+    source_labels = ["container_name"]
+    target_label  = "container"
+  }
+
+  rule {
+    action        = "replace"
+    regex         = "(.+)"
+    source_labels = ["nodename"]
+    target_label  = "node"
+  }
+
+  rule {
+    action        = "replace"
+    regex         = "(.+)"
+    source_labels = ["service_name"]
+    target_label  = "app"
+  }
+
+  rule {
+    action        = "replace"
+    regex         = "(.+);(.+)"
+    replacement   = "$1/$2"
+    separator     = ";"
+    source_labels = ["nodename", "container_name"]
+    target_label  = "instance"
+  }
+
+  rule {
+    action = "labeldrop"
+    regex  = "container_id|created|image_id"
+  }
+}
+
 loki.source.api "external_push" {
   http {
     listen_address = "0.0.0.0"
     listen_port    = {{ loki_push_port }}
   }
 
-  forward_to = [loki.write.loki.receiver]
+  forward_to = [loki.relabel.external_push.receiver]
 }
 
 loki.write "loki" {
