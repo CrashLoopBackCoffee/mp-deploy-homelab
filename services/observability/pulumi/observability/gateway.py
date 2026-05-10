@@ -38,7 +38,7 @@ def create_mimir_gateway_service(
         metadata={'name': 'mimir'},
         spec={
             'selector': {
-                'app.kubernetes.io/component': 'nginx',
+                'app.kubernetes.io/component': 'gateway',
                 'app.kubernetes.io/instance': mimir.status.name,
                 'app.kubernetes.io/name': 'mimir',
             },
@@ -46,7 +46,7 @@ def create_mimir_gateway_service(
                 {
                     'name': 'http',
                     'port': 80,
-                    'target_port': 'http-metric',
+                    'target_port': 'http-metrics',
                 }
             ],
         },
