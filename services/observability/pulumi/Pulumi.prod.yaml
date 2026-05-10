@@ -13,7 +13,7 @@ config:
       retention-days: 3
     mimir:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=mimir-distributed versioning=helm
-      version: 5.8.0
+      version: 6.0.6
       retention-days: 3
     alloy:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=alloy versioning=helm
