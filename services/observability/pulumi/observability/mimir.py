@@ -40,7 +40,11 @@ def create_mimir(
                             'dir': '/data/ingester-tsdb',
                         },
                     },
+                    'ingest_storage': {
+                        'enabled': False,
+                    },
                     'ingester': {
+                        'push_grpc_method_enabled': True,
                         'ring': {
                             'replication_factor': 1,
                         },
@@ -87,7 +91,9 @@ def create_mimir(
                 'zoneAwareReplication': {'enabled': False},
                 'persistentVolume': {'enabled': False},
             },
+            'kafka': {'enabled': False},
             'minio': {'enabled': False},
+            'rollout_operator': {'enabled': False},
             'compactor': {
                 'persistentVolume': {'enabled': False},
             },
