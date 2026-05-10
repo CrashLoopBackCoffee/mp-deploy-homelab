@@ -56,11 +56,17 @@ def create_loki(
                     }
                 ],
             },
+            'gateway': {
+                'deploymentStrategy': {
+                    'type': 'Recreate',
+                },
+            },
             # Disable distributed mode components
             'backend': {'replicas': 0},
             'read': {'replicas': 0},
             'write': {'replicas': 0},
             # Disable extras not needed in this phase
+            'sidecar': {'rules': {'enabled': False}},
             'monitoring': {
                 'selfMonitoring': {
                     'enabled': False,
