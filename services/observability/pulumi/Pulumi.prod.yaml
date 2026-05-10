@@ -9,7 +9,7 @@ config:
         secure: AAABAEM5oB9kymDzomUyc6PeyEn3tHco+1pd+twZ9M1WZpHrpju7pPvAVj8fvtLMkskA1dyXVKJolBwWFTeAtb+XoTHI9br87ayYjJ84EOw=
     loki:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=loki versioning=helm
-      version: 6.31.0
+      version: 6.55.0
       retention-days: 3
     mimir:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=mimir-distributed versioning=helm
