@@ -345,7 +345,7 @@ loki.relabel "external_push" {
 
   rule {
     action = "labeldrop"
-    regex  = "container_id|created|image_id"
+    regex  = "container_id|container_name|created|image_id|nodename|service_name"
   }
 }
 
