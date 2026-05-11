@@ -28,6 +28,14 @@ prometheus.remote_write "mimir" {
   }
 }
 
+{% for target in static_scrape_targets if target.bearer_token %}
+local.file "{{ target.name }}_bearer_token" {
+  filename  = "{{ static_scrape_target_secrets_path }}/{{ target.name }}-bearer-token"
+  is_secret = true
+}
+
+{% endfor %}
+
 {% for target in static_scrape_targets %}
 prometheus.scrape "{{ target.name }}" {
   targets = [
@@ -48,7 +56,7 @@ prometheus.scrape "{{ target.name }}" {
 {% if target.bearer_token %}
   authorization {
     type        = "Bearer"
-    credentials = "{{ target.bearer_token }}"
+    credentials = local.file.{{ target.name }}_bearer_token.content
   }
 {% endif %}
   scrape_interval = "{{ target.scrape_interval }}"
