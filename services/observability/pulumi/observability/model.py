@@ -1,5 +1,7 @@
 """Configuration model for the observability stack."""
 
+from typing import Literal
+
 import pydantic
 
 from utils.model import ConfigBaseModel, PulumiSecret, get_pulumi_project
@@ -63,10 +65,18 @@ class MimirConfig(ConfigBaseModel):
 class StaticScrapeTarget(ConfigBaseModel):
     name: str = pydantic.Field(description='Alloy component name for this scrape target.')
     job_name: str = pydantic.Field(description='Prometheus job label for scraped samples.')
-    address: str = pydantic.Field(description='Host and port scraped by Alloy.')
+    address: str = pydantic.Field(description='Host and optional port scraped by Alloy.')
+    scheme: Literal['http', 'https'] = pydantic.Field(
+        default='http',
+        description='HTTP scheme used to scrape the target.',
+    )
     metrics_path: str = pydantic.Field(
         default='/metrics',
         description='HTTP path that exposes Prometheus metrics.',
+    )
+    bearer_token: PulumiSecret | None = pydantic.Field(
+        default=None,
+        description='Bearer token used to authenticate scrape requests.',
     )
     scrape_interval: str = pydantic.Field(
         default='30s',

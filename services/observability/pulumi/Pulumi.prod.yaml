@@ -41,6 +41,17 @@ config:
             instance: pve-02
             role: pve
             source: proxmox
+        - name: homeassistant
+          job-name: homeassistant
+          address: ha.mpagel.de:443
+          scheme: https
+          metrics-path: /api/prometheus
+          bearer-token:
+            secure: AAABANcrmfmnc6XJ5+e2JZ3A4TleRGJ7YxFFbsWlGVrlyX7C+j48KKPDHm2M8roHmBNDruk6yEy3HEDBjLBHj85bv7ZBvp8a4bLN+25jDty14PkNGI59J1p0150clvolVO/dljwsfi382M5sKC50qQfuzG+363gHDzgYnIWgjoPCvOlUyIKugLTzJ0/DJ34KgoYpYWkyRIcU59brfmGNh5gZvtIWmLbD8WxjZBSA3FxErdb4zKAnMMt+D+qX7L1cLRTUVx/UCfId54t05WFb0GSWCQoaM14=
+          labels:
+            instance: homeassistant
+            role: homeassistant
+            source: homeassistant
     kube-state-metrics:
       # renovate: datasource=helm registryUrl=https://prometheus-community.github.io/helm-charts packageName=kube-state-metrics versioning=helm
       version: 7.3.0

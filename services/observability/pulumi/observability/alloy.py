@@ -14,6 +14,9 @@ ALLOY_SERVICE_NAME = 'alloy'
 ALLOY_OTLP_GRPC_PORT = 4317
 ALLOY_OTLP_HTTP_PORT = 4318
 ALLOY_LOKI_PUSH_PORT = 3100
+ALLOY_STATIC_SCRAPE_TARGET_SECRETS_NAME = 'alloy-static-scrape-target-secrets'
+ALLOY_STATIC_SCRAPE_TARGET_SECRETS_VOLUME = 'static-scrape-target-secrets'
+ALLOY_STATIC_SCRAPE_TARGET_SECRETS_PATH = '/etc/alloy/secrets/static-scrape-targets'
 
 
 def create_alloy(
@@ -23,6 +26,11 @@ def create_alloy(
     mimir_gateway: k8s.core.v1.Service,
     k8s_opts: p.ResourceOptions,
 ) -> tuple[k8s.helm.v3.Release, k8s.core.v1.Service]:
+    static_scrape_target_secrets = create_static_scrape_target_secret(
+        component_config.alloy.static_scrape_targets,
+        k8s_opts,
+    )
+
     alloy = k8s.helm.v3.Release(
         'alloy',
         chart='alloy',
@@ -32,6 +40,11 @@ def create_alloy(
             'controller': {
                 'type': 'deployment',
                 'replicas': 1,
+                'volumes': {
+                    'extra': alloy_static_scrape_target_secret_volumes(
+                        static_scrape_target_secrets
+                    ),
+                },
             },
             'alloy': {
                 'configMap': {
@@ -40,6 +53,9 @@ def create_alloy(
                         loki_gateway=loki_gateway,
                         mimir_gateway=mimir_gateway,
                     ),
+                },
+                'mounts': {
+                    'extra': alloy_static_scrape_target_secret_mounts(static_scrape_target_secrets),
                 },
                 'extraPorts': [
                     {
@@ -73,6 +89,59 @@ def create_alloy(
     return alloy, service
 
 
+def create_static_scrape_target_secret(
+    static_scrape_targets: list[StaticScrapeTarget],
+    k8s_opts: p.ResourceOptions,
+) -> k8s.core.v1.Secret | None:
+    bearer_tokens = {
+        f'{target.name}-bearer-token': target.bearer_token
+        for target in static_scrape_targets
+        if target.bearer_token is not None
+    }
+
+    if not bearer_tokens:
+        return None
+
+    return k8s.core.v1.Secret(
+        ALLOY_STATIC_SCRAPE_TARGET_SECRETS_NAME,
+        metadata={'name': ALLOY_STATIC_SCRAPE_TARGET_SECRETS_NAME},
+        string_data=bearer_tokens,
+        type='Opaque',
+        opts=k8s_opts,
+    )
+
+
+def alloy_static_scrape_target_secret_volumes(
+    secret: k8s.core.v1.Secret | None,
+) -> list[dict[str, object]]:
+    if secret is None:
+        return []
+
+    return [
+        {
+            'name': ALLOY_STATIC_SCRAPE_TARGET_SECRETS_VOLUME,
+            'secret': {
+                'secretName': secret.metadata.name,
+            },
+        }
+    ]
+
+
+def alloy_static_scrape_target_secret_mounts(
+    secret: k8s.core.v1.Secret | None,
+) -> list[dict[str, object]]:
+    if secret is None:
+        return []
+
+    return [
+        {
+            'name': ALLOY_STATIC_SCRAPE_TARGET_SECRETS_VOLUME,
+            'mountPath': ALLOY_STATIC_SCRAPE_TARGET_SECRETS_PATH,
+            'readOnly': True,
+        }
+    ]
+
+
 def create_alloy_config(
     *,
     static_scrape_targets: list[StaticScrapeTarget],
@@ -85,6 +154,7 @@ def create_alloy_config(
         otlp_grpc_port=ALLOY_OTLP_GRPC_PORT,
         otlp_http_port=ALLOY_OTLP_HTTP_PORT,
         loki_push_port=ALLOY_LOKI_PUSH_PORT,
+        static_scrape_target_secrets_path=ALLOY_STATIC_SCRAPE_TARGET_SECRETS_PATH,
         static_scrape_targets=static_scrape_targets,
     ).apply(
         lambda values: jinja2.Template(
