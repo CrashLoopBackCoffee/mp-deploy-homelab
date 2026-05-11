@@ -42,6 +42,15 @@ prometheus.scrape "{{ target.name }}" {
   forward_to      = [prometheus.remote_write.mimir.receiver]
   job_name        = "{{ target.job_name }}"
   metrics_path    = "{{ target.metrics_path }}"
+{% if target.scheme != "http" %}
+  scheme          = "{{ target.scheme }}"
+{% endif %}
+{% if target.bearer_token %}
+  authorization {
+    type        = "Bearer"
+    credentials = "{{ target.bearer_token }}"
+  }
+{% endif %}
   scrape_interval = "{{ target.scrape_interval }}"
   scrape_timeout  = "{{ target.scrape_timeout }}"
 }

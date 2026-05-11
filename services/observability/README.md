@@ -179,6 +179,7 @@ Mimir. Additional Prometheus-style scrape targets can be added incrementally.
 | Kubernetes object state metrics | Yes | Yes | `kube-state-metrics` runs in `observability`, and Alloy scrapes it into Mimir. |
 | Proxmox and PBS host OS metrics | Yes | Configured | Alloy has static scrapes for node-exporter on `pve-02.mpagel.de:9100` and `pbs.mpagel.de:9100`. |
 | Proxmox VE metrics | Yes | Configured | Alloy has a static scrape for `prometheus-pve-exporter` on `pve-02.mpagel.de:9221/pve`. |
+| Home Assistant metrics | Yes | Configured | Alloy has a static HTTPS scrape for `ha.mpagel.de/api/prometheus` with bearer-token auth. |
 
 ### Candidate Sources
 
@@ -198,6 +199,7 @@ Mimir. Additional Prometheus-style scrape targets can be added incrementally.
 | Kubernetes object state | Deployment replica state, pod phase, PVC status, job state, and restart metadata | Yes | Enabled through `kube-state-metrics` deployed in `observability` and scraped by Alloy. |
 | Proxmox and PBS node OS metrics | Disk, filesystem, load, and host network metrics for the external hypervisor/backup hosts | Yes | Configured through explicit Alloy static scrapes of the existing node-exporter endpoints. |
 | Proxmox VE metrics | VM/CT state, VM CPU and memory usage, storage usage, backup coverage, and Proxmox version/subscription metadata | Yes | Configured through an explicit Alloy static scrape of the existing `prometheus-pve-exporter` endpoint. |
+| Home Assistant | Entity and automation metrics exposed by Home Assistant's Prometheus integration | Yes | Configured through an explicit Alloy static HTTPS scrape of `ha.mpagel.de/api/prometheus` with bearer-token auth. |
 | Kubernetes node OS metrics | Disk, filesystem, load, systemd, and host network metrics for the Kubernetes VM guest OS | No | Add node-exporter inside the Kubernetes nodes, or run Alloy as a DaemonSet with host mounts and a node/unix exporter component. |
 | Node system logs | MicroK8s, kubelet, container runtime, and systemd logs | No | Add DaemonSet-style log collection with host mounts for journald and MicroK8s log paths. |
 
