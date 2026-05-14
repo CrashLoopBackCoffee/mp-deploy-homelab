@@ -24,4 +24,4 @@ config:
       rclone-conf-b64:
         envvar: RCLONE_CONF_B64__ONEDRIVE__TOM
       destinations:
-        - "onedrive:Paperless"
+        - "icloud:Paperless"
