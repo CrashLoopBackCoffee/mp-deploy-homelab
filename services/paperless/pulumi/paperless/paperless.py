@@ -320,7 +320,14 @@ def create_application_sts(
                         'name': 'media',
                     },
                     'spec': {
-                        'storage_class_name': 'samba-write-k8s',
+                        'storage_class_name': (
+                            # use legacy storage class for existing stacks, as this cannot be
+                            # changed in STS, but were manually patched, use retain version for
+                            # document storage for future stacks:
+                            'samba-write-k8s'
+                            if p.get_stack() in ('prod', 'prod-fisi', 'prod-juno')
+                            else 'samba-write-k8s-retained'
+                        ),
                         'access_modes': ['ReadWriteOnce'],
                         'resources': {
                             'requests': {'storage': f'{component_config.paperless.media_size_gb}Gi'}

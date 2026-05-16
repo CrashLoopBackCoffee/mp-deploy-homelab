@@ -56,6 +56,15 @@ def ensure_smb(component_config: ComponentConfig, k8s_provider: k8s.Provider):
                 smb_secret=smb_secret,
                 k8s_opts=k8s_opts,
             )
+            if share == 'write-k8s':
+                _create_smb_storage_class(
+                    f'samba-{share}-retained',
+                    samba_fqdn=samba_fqdn,
+                    share=share,
+                    reclaim_policy='Retain',
+                    smb_secret=smb_secret,
+                    k8s_opts=k8s_opts,
+                )
 
     samba_stack.get_output('smb-shares').apply(create_storage_classes)
 
