@@ -231,6 +231,23 @@ def create_microk8s(component_config: ComponentConfig, proxmox_provider: proxmox
             opts=k8s_opts,
         )
 
+        # create hostpath storage class for retained bulk observability data:
+        k8s.storage.v1.StorageClass(
+            'bulk-hostpath-retained',
+            metadata={
+                'name': component_config.microk8s.bulk_storage_class_name,
+                'annotations': {
+                    'storageclass.kubernetes.io/is-default-class': 'false',
+                },
+            },
+            provisioner='microk8s.io/hostpath',
+            parameters={'pvDir': component_config.microk8s.bulk_storage_mount},
+            reclaim_policy='Retain',
+            volume_binding_mode='WaitForFirstConsumer',
+            allow_volume_expansion=True,
+            opts=k8s_opts,
+        )
+
         # remove the default annotation from the hostpath storage class (just setting the pvDir
         # parameter is not possible as patches do not allow for parameter updates):
         k8s.storage.v1.StorageClassPatch(
