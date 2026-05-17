@@ -69,6 +69,35 @@ class MimirConfig(ConfigBaseModel):
         ge=1,
         description='Mimir metrics retention period in days.',
     )
+    storage_class_name: str = pydantic.Field(
+        default='bulk-hostpath-retained',
+        description='Storage class for the Mimir and MinIO data PVCs.',
+    )
+    minio_storage_size_gb: int = pydantic.Field(
+        default=100,
+        ge=1,
+        description='Size of the bundled MinIO data PVC in GiB.',
+    )
+    ingester_storage_size_gb: int = pydantic.Field(
+        default=20,
+        ge=1,
+        description='Size of each Mimir ingester data PVC in GiB.',
+    )
+    store_gateway_storage_size_gb: int = pydantic.Field(
+        default=10,
+        ge=1,
+        description='Size of each Mimir store-gateway data PVC in GiB.',
+    )
+    compactor_storage_size_gb: int = pydantic.Field(
+        default=10,
+        ge=1,
+        description='Size of the Mimir compactor data PVC in GiB.',
+    )
+    alertmanager_storage_size_gb: int = pydantic.Field(
+        default=1,
+        ge=1,
+        description='Size of the Mimir alertmanager data PVC in GiB.',
+    )
 
 
 class StaticScrapeTarget(ConfigBaseModel):
