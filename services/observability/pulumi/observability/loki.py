@@ -24,6 +24,7 @@ def create_loki(
             'loki': {
                 'auth_enabled': False,
                 'commonConfig': {
+                    'path_prefix': '/var/loki',
                     'replication_factor': 1,
                 },
                 'compactor': {
@@ -41,20 +42,13 @@ def create_loki(
             'singleBinary': {
                 'replicas': 1,
                 'persistence': {
-                    'enabled': False,
+                    'enabled': True,
+                    'size': f'{component_config.loki.storage_size_gb}Gi',
+                    'storageClass': component_config.loki.storage_class_name,
+                    'enableStatefulSetAutoDeletePVC': True,
+                    'whenDeleted': 'Retain',
+                    'whenScaled': 'Retain',
                 },
-                'extraVolumes': [
-                    {
-                        'name': 'loki-data',
-                        'emptyDir': {},
-                    }
-                ],
-                'extraVolumeMounts': [
-                    {
-                        'name': 'loki-data',
-                        'mountPath': '/var/loki',
-                    }
-                ],
             },
             'gateway': {
                 'deploymentStrategy': {

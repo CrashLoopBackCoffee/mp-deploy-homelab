@@ -51,6 +51,15 @@ class LokiConfig(ConfigBaseModel):
         ge=1,
         description='Loki log retention period in days.',
     )
+    storage_class_name: str = pydantic.Field(
+        default='bulk-hostpath-retained',
+        description='Storage class for the Loki data PVC.',
+    )
+    storage_size_gb: int = pydantic.Field(
+        default=25,
+        ge=1,
+        description='Size of the Loki data PVC in GiB.',
+    )
 
 
 class MimirConfig(ConfigBaseModel):
