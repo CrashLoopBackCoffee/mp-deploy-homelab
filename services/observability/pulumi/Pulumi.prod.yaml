@@ -10,11 +10,11 @@ config:
     loki:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=loki versioning=helm
       version: 6.55.0
-      retention-days: 3
+      retention-days: 15
     mimir:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=mimir-distributed versioning=helm
       version: 6.0.6
-      retention-days: 3
+      retention-days: 15
     alloy:
       # renovate: datasource=helm registryUrl=https://grafana.github.io/helm-charts packageName=alloy versioning=helm
       version: 1.8.1
