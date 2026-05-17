@@ -55,6 +55,8 @@ class MicroK8sConfig(ConfigBaseModel):
     vlan_id: pydantic.PositiveInt | None = None
     master_nodes: list[VirtualMachineConfig]
     data_disk_mount: str = '/mnt/data'
+    bulk_storage_mount: str = '/mnt/bulk'
+    bulk_storage_class_name: str = 'bulk-hostpath-retained'
     sub_domain: str | None = None
 
 

@@ -1,0 +1,51 @@
+- name: Mount bulk storage disk
+  hosts: master
+  become: true
+  gather_facts: false
+
+  vars:
+    bulk_storage_mount_options: defaults,nofail,x-systemd.device-timeout=30s
+
+  pre_tasks:
+    - name: Ensure bulk storage UUID is configured
+      ansible.builtin.assert:
+        that:
+          - bulk_storage is defined
+          - bulk_storage.uuid is defined
+          - bulk_storage.uuid | length > 0
+        fail_msg: Set bulk_storage.uuid to the ext4 filesystem UUID before mounting bulk storage.
+
+    - name: Ensure bulk storage mount settings are configured
+      ansible.builtin.assert:
+        that:
+          - bulk_storage.mount_path is defined
+          - bulk_storage.mount_path | length > 0
+          - bulk_storage.fstype is defined
+          - bulk_storage.fstype | length > 0
+        fail_msg: Set bulk_storage.mount_path and bulk_storage.fstype before mounting bulk storage.
+
+    - name: Verify bulk storage filesystem UUID exists
+      ansible.builtin.command:
+        cmd: blkid -t UUID={{ bulk_storage.uuid }}
+      register: bulk_storage_blkid
+      changed_when: false
+      check_mode: false
+
+  tasks:
+    - name: Create bulk storage mount point
+      ansible.builtin.file:
+        path: "{{ bulk_storage.mount_path }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Mount bulk storage by UUID
+      ansible.posix.mount:
+        path: "{{ bulk_storage.mount_path }}"
+        src: UUID={{ bulk_storage.uuid }}
+        fstype: "{{ bulk_storage.fstype }}"
+        opts: "{{ bulk_storage_mount_options }}"
+        state: mounted
+        dump: "0"
+        passno: "2"

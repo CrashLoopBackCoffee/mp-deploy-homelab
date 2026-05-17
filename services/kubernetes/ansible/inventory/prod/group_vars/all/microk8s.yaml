@@ -1,3 +1,8 @@
 microk8s:
   # renovate: datasource=github-tags packageName=canonical/microk8s versioning=loose
   version: "1.35"
+
+bulk_storage:
+  mount_path: /mnt/bulk
+  fstype: ext4
+  uuid: 69f72508-3236-4bed-8d3e-d227ff3e1215
